@@ -1,7 +1,7 @@
 export function formatCurrency(value) {
   return new Intl.NumberFormat("en-BH", {
     style: "currency",
-    currency: "BHD"
+    currency: "INR"
   }).format(value);
 }
 

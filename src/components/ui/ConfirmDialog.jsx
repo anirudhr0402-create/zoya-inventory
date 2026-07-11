@@ -8,27 +8,19 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel
 }) {
+  if (!open) return null;
+
   return (
     <Modal
       open={open}
       title={title}
       onClose={onCancel}
     >
-      <p
-        style={{
-          marginBottom: 24
-        }}
-      >
+      <p className="mb-6">
         {message}
       </p>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 10
-        }}
-      >
+      <div className="flex justify-end gap-3">
         <Button
           variant="secondary"
           onClick={onCancel}
@@ -40,7 +32,7 @@ export default function ConfirmDialog({
           variant="danger"
           onClick={onConfirm}
         >
-          Confirm
+          Delete
         </Button>
       </div>
     </Modal>
