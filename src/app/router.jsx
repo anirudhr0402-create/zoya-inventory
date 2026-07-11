@@ -12,8 +12,7 @@ import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import ProductsPage from "../features/products/pages/ProductsPage";
 import CategoriesPage from "../features/categories/pages/CategoriesPage";
 import InventoryPage from "../features/inventory/pages/InventoryPage";
-
-import SuppliersPage from "../pages/SuppliersPage";
+import SuppliersPage from "../features/suppliers/pages/SuppliersPage";
 import CustomersPage from "../pages/CustomersPage";
 import PurchasesPage from "../pages/PurchasesPage";
 import SalesPage from "../pages/SalesPage";

@@ -4,8 +4,7 @@ const menus = [
   { name: "Dashboard", path: "/dashboard" },
   { name: "Products", path: "/products" },
 {
-  label: "Categories",
-  path: "/categories"
+  name: "Categories", path: "/categories"
 },
   { name: "Inventory", path: "/inventory" },
   { name: "Suppliers", path: "/suppliers" },

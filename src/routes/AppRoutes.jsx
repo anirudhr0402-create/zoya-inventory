@@ -6,7 +6,7 @@ import DashboardPage from "../pages/DashboardPage";
 import ProductsPage from "../pages/ProductsPage";
 import CategoriesPage from "../pages/CategoriesPage";
 import InventoryPage from "../pages/InventoryPage";
-import SuppliersPage from "../pages/SuppliersPage";
+import SuppliersPage from "../features/suppliers/pages/SuppliersPage";
 import CustomersPage from "../pages/CustomersPage";
 import SalesPage from "../pages/SalesPage";
 import PurchasesPage from "../pages/PurchasesPage";

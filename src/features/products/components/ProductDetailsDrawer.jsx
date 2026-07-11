@@ -28,7 +28,7 @@ export default function ProductDetailsDrawer({
           <DetailRow label="Supplier" value={product.supplier} />
           <DetailRow
             label="Price"
-            value={`BHD ${Number(product.price).toFixed(2)}`}
+            value={`INR ${Number(product.price).toFixed(2)}`}
           />
           <DetailRow
             label="Stock"

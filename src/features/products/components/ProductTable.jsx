@@ -105,7 +105,7 @@ export default function ProductTable({
 
               {/* Price */}
               <td className="px-6 py-4 text-right font-medium">
-                BHD {Number(product.price).toFixed(2)}
+                INR {Number(product.price).toFixed(2)}
               </td>
 
               {/* Stock */}
