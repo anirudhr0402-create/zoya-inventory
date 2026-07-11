@@ -88,12 +88,6 @@ export default function LoginPage() {
         >
           Login
         </button>
-
-        <div className="mt-6 rounded bg-slate-100 p-3 text-sm">
-          <div><b>Admin:</b> admin / admin123</div>
-          <div><b>Manager:</b> manager / manager123</div>
-          <div><b>Staff:</b> staff / staff123</div>
-        </div>
       </form>
     </div>
   );
