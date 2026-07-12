@@ -4,14 +4,28 @@ import useDashboard from "../hooks/useDashboard";
 
 import KpiCard from "../components/KpiCard";
 import LowStockCard from "../components/LowStockCard";
+import RecentSales from "../components/RecentSales";
+import LowStockWidget from "../components/LowStockWidget";
+import useSales from "../../sales/hooks/useSales";
+import useInventory from "../../inventory/hooks/useInventory";
 
 export default function DashboardPage() {
   const { data, isLoading } = useDashboard();
+  const { data: sales = [] } = useSales();
+
+const { data: inventory = [] } = useInventory();
 
   if (isLoading) {
     return (
       <div className="p-8">
         Loading dashboard...
+        <div className="mt-8 grid gap-6 xl:grid-cols-2">
+
+    <RecentSales sales={sales} />
+
+    <LowStockWidget inventory={inventory} />
+
+</div>
       </div>
     );
   }

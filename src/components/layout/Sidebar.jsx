@@ -11,7 +11,11 @@ const menus = [
   { name: "Customers", path: "/customers" },
   { name: "Purchases", path: "/purchases" },
   { name: "Sales", path: "/sales" },
-  { name: "Reports", path: "/reports" }
+  { name: "Reports", path: "/reports" },
+  {
+    name: "Settings",
+    path: "/settings"
+}
 ];
 
 export default function Sidebar() {

@@ -18,6 +18,7 @@ import SalesPage from "../features/sales/pages/SalesPage";
 import ReportsPage from "../features/reports/pages/ReportsPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import CustomersPage from "../features/customers/pages/CustomersPage";
+import SettingsPage from "../features/settings/pages/SettingsPage";
 
 const protectedLayout = (
     <ProtectedRoute>
@@ -72,7 +73,11 @@ const router = createBrowserRouter([
             {
                 path: "/reports",
                 element: <ReportsPage />
-            }
+            },
+            {
+    path: "/settings",
+    element: <SettingsPage />
+},
         ]
     },
     {

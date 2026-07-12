@@ -6,6 +6,7 @@ export default function ReportCard({
   color = "text-gray-900"
 }) {
   return (
+    
     <Card className="p-6">
       <p className="text-sm text-gray-500">
         {title}
@@ -17,3 +18,4 @@ export default function ReportCard({
     </Card>
   );
 }
+

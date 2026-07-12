@@ -1,5 +1,4 @@
 import PageHeader from "../../../components/ui/PageHeader";
-import ReportCard from "../components/ReportCard";
 
 import useProducts from "../../products/hooks/useProducts";
 import useCustomers from "../../customers/hooks/useCustomers";
@@ -9,6 +8,11 @@ import usePurchases from "../../purchases/hooks/usePurchases";
 import useSales from "../../sales/hooks/useSales";
 
 import { getDashboardReport } from "../services/reportService";
+
+import ReportCard from "../components/ReportCard";
+import RevenueChart from "../components/RevenueChart";
+import ProfitChart from "../components/ProfitChart";
+import InventoryValueChart from "../components/InventoryValueChart";
 
 export default function ReportsPage() {
   const { data: products = [] } = useProducts();
@@ -28,13 +32,16 @@ export default function ReportsPage() {
   });
 
   return (
-    <>
+    <div className="space-y-8">
+
       <PageHeader
         title="Reports"
         subtitle="Business Reports & Analytics"
       />
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      {/* KPI Cards */}
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
         <ReportCard
           title="Products"
@@ -52,9 +59,8 @@ export default function ReportsPage() {
         />
 
         <ReportCard
-          title="Inventory Value"
-          value={`INR ${report.inventoryValue.toFixed(2)}`}
-          color="text-blue-600"
+          title="Purchases"
+          value={report.totalPurchases}
         />
 
         <ReportCard
@@ -66,13 +72,13 @@ export default function ReportsPage() {
         <ReportCard
           title="Profit"
           value={`INR ${report.profit.toFixed(2)}`}
-          color="text-emerald-600"
+          color="text-blue-600"
         />
 
         <ReportCard
-          title="Purchases"
-          value={report.totalPurchases}
-          color="text-orange-600"
+          title="Inventory Value"
+          value={`INR ${report.inventoryValue.toFixed(2)}`}
+          color="text-purple-600"
         />
 
         <ReportCard
@@ -82,6 +88,19 @@ export default function ReportsPage() {
         />
 
       </div>
-    </>
+
+      {/* Charts */}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+
+        <RevenueChart sales={sales} />
+
+        <ProfitChart sales={sales} />
+
+      </div>
+
+      <InventoryValueChart inventory={inventory} />
+
+    </div>
   );
 }
