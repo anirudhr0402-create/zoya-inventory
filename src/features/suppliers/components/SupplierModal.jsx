@@ -1,25 +1,17 @@
 import Modal from "../../../components/ui/Modal";
 import SupplierForm from "./SupplierForm";
 
-export default function SupplierModal({
-  open,
-  title,
-  initialValues,
-  onSubmit,
-  onClose
-}) {
-  if (!open) return null;
-
+export default function SupplierModal(props) {
   return (
     <Modal
-      open={open}
-      title={title}
-      onClose={onClose}
+      open={props.open}
+      title={props.title}
+      onClose={props.onClose}
     >
       <SupplierForm
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        onCancel={onClose}
+        initialValues={props.initialValues}
+        onSubmit={props.onSubmit}
+        onCancel={props.onClose}
       />
     </Modal>
   );

@@ -14,7 +14,6 @@ export default function useProductSearch(products = []) {
   const keyword = search.toLowerCase();
 
   return (
-    product.code.toLowerCase().includes(keyword) ||
     product.name.toLowerCase().includes(keyword) ||
     product.category.toLowerCase().includes(keyword) ||
     product.supplier.toLowerCase().includes(keyword) ||

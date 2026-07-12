@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { testFirebase } from "./services/firebase/testConnection";
 
 import "./styles/global.css";
 
@@ -13,3 +14,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </AppProviders>
   </React.StrictMode>
 );
+
+testFirebase();

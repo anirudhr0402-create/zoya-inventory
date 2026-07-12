@@ -8,8 +8,6 @@ export default function CategoryModal({
   onSubmit,
   onClose
 }) {
-  if (!open) return null;
-
   return (
     <Modal
       open={open}

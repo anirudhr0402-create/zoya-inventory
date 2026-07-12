@@ -1,18 +1,92 @@
-function delay(ms = 400) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+import {
+  collection,
+  getCountFromServer,
+  getDocs
+} from "firebase/firestore";
 
-export async function getDashboardSummary() {
-  await delay();
+import { db } from "../../../services/firebase/firebaseConfig";
+
+export async function getDashboardData() {
+
+  const [
+    products,
+    categories,
+    suppliers,
+    customers,
+    inventory,
+    purchases,
+    sales
+  ] = await Promise.all([
+
+    getCountFromServer(collection(db, "products")),
+
+    getCountFromServer(collection(db, "categories")),
+
+    getCountFromServer(collection(db, "suppliers")),
+
+    getCountFromServer(collection(db, "customers")),
+
+    getDocs(collection(db, "inventory")),
+
+    getDocs(collection(db, "purchases")),
+
+    getDocs(collection(db, "sales"))
+
+  ]);
+
+  let inventoryValue = 0;
+
+  inventory.forEach(doc => {
+
+    inventoryValue += Number(
+      doc.data().inventoryValue || 0
+    );
+
+  });
+
+  let purchaseValue = 0;
+
+  purchases.forEach(doc => {
+
+    purchaseValue += Number(
+      doc.data().grandTotal || 0
+    );
+
+  });
+
+  let salesValue = 0;
+
+  sales.forEach(doc => {
+
+    salesValue += Number(
+      doc.data().grandTotal || 0
+    );
+
+  });
 
   return {
-    totalProducts: 248,
-    totalCategories: 14,
-    totalSuppliers: 18,
-    totalCustomers: 326,
-    totalSales: 145230,
-    totalPurchases: 112540,
-    lowStockItems: 12,
-    outOfStockItems: 3
+
+    totalProducts: products.data().count,
+
+    totalCategories: categories.data().count,
+
+    totalSuppliers: suppliers.data().count,
+
+    totalCustomers: customers.data().count,
+
+    totalPurchases: purchases.size,
+
+    totalSales: sales.size,
+
+    inventoryValue,
+
+    purchaseValue,
+
+    salesValue,
+
+    estimatedProfit:
+      salesValue - purchaseValue
+
   };
+
 }

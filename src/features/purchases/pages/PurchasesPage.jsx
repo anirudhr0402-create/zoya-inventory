@@ -2,161 +2,106 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import PageHeader from "../../../components/ui/PageHeader";
-import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+
+import PurchaseForm from "../components/PurchaseForm";
 
 import usePurchases from "../hooks/usePurchases";
-import usePurchaseSearch from "../hooks/usePurchaseSearch";
-import usePurchaseSort from "../hooks/usePurchaseSort";
 
-import PurchaseStats from "../components/PurchaseStats";
-import PurchaseToolbar from "../components/PurchaseToolbar";
-import PurchaseTable from "../components/PurchaseTable";
-import PurchaseModal from "../components/PurchaseModal";
+import { increaseStock } from "../../inventory/utils/updateStock";
 
-import usePagination from "../../products/hooks/usePagination";
-import Pagination from "../../products/components/Pagination";
+import useProducts from "../../products/hooks/useProducts";
 
-export default function PurchasesPage() {
-  const {
-    data = [],
-    isLoading,
-    addPurchase,
-    updatePurchase,
-    deletePurchase
-  } = usePurchases();
+
+export default function PurchasePage() {
+
+  const { mutateAsync: savePurchase } =
+    usePurchases();
 
   const {
-    search,
-    setSearch,
-    filteredPurchases
-  } = usePurchaseSearch(data);
+    data: products = []
+  } = useProducts();
 
-  const {
-    sortedPurchases,
-    sortField,
-    sortDirection,
-    changeSort
-  } = usePurchaseSort(filteredPurchases);
+  const [saving, setSaving] =
+    useState(false);
 
-  const {
-    page,
-    pageSize,
-    totalPages,
-    paginatedData,
-    nextPage,
-    previousPage,
-    setPage,
-    setPageSize
-  } = usePagination(sortedPurchases, 5);
+  async function handleSubmit(data) {
 
-  const [editingPurchase, setEditingPurchase] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+    try {
 
-  const [selectedPurchase, setSelectedPurchase] = useState(null);
-  const [showDelete, setShowDelete] = useState(false);
+      setSaving(true);
 
-  async function handleCreate(values) {
-    await addPurchase(values);
-    toast.success("Purchase created.");
-    setShowModal(false);
-  }
+      await savePurchase(data);
 
-  async function handleUpdate(values) {
-    await updatePurchase({
-      ...editingPurchase,
-      ...values
-    });
+      for (const item of data.items) {
 
-    toast.success("Purchase updated.");
-    setEditingPurchase(null);
-    setShowModal(false);
-  }
+        const product =
+          products.find(
+            p => p.id === item.productId
+          );
 
-  async function handleDelete() {
-    await deletePurchase(selectedPurchase.id);
+        if (!product) continue;
 
-    toast.success("Purchase deleted.");
+        await increaseStock({
 
-    setSelectedPurchase(null);
-    setShowDelete(false);
-  }
+          product,
 
-  if (isLoading) {
-    return <div className="p-6">Loading...</div>;
+          quantity: Number(
+            item.quantity
+          ),
+
+          price: Number(
+            item.purchasePrice
+          )
+
+        });
+
+      }
+
+      toast.success(
+        "Purchase saved successfully."
+      );
+
+    } catch (error) {
+
+      toast.error(
+        error.message ||
+        "Unable to save purchase."
+      );
+
+    } finally {
+
+      setSaving(false);
+
+    }
+
   }
 
   return (
+
     <>
+
       <PageHeader
-        title="Purchases"
-        subtitle="Manage purchases"
+
+        title="Purchase Entry"
+
+        subtitle="Record supplier purchases"
+
       />
 
-      <PurchaseStats purchases={data} />
+      <PurchaseForm
 
-      <PurchaseToolbar
-        search={search}
-        onSearch={setSearch}
-        onAdd={() => {
-          setEditingPurchase(null);
-          setShowModal(true);
-        }}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSortChange={changeSort}
-      />
+        loading={saving}
 
-      <PurchaseTable
-        purchases={paginatedData}
-        onEdit={(purchase) => {
-          setEditingPurchase(purchase);
-          setShowModal(true);
-        }}
-        onDelete={(purchase) => {
-          setSelectedPurchase(purchase);
-          setShowDelete(true);
-        }}
-      />
+        onSubmit={handleSubmit}
 
-      <Pagination
-        page={page}
-        pageSize={pageSize}
-        totalPages={totalPages}
-        nextPage={nextPage}
-        previousPage={previousPage}
-        setPage={setPage}
-        setPageSize={setPageSize}
-      />
-
-      <PurchaseModal
-        open={showModal}
-        title={
-          editingPurchase
-            ? "Edit Purchase"
-            : "Add Purchase"
+        onCancel={() =>
+          history.back()
         }
-        initialValues={editingPurchase}
-        onSubmit={
-          editingPurchase
-            ? handleUpdate
-            : handleCreate
-        }
-        onClose={() => {
-          setEditingPurchase(null);
-          setShowModal(false);
-        }}
+
       />
 
-      <ConfirmDialog
-        open={showDelete}
-        title="Delete Purchase"
-        message={`Delete "${selectedPurchase?.invoiceNo}"?`}
-        onConfirm={handleDelete}
-        onCancel={() => {
-          setSelectedPurchase(null);
-          setShowDelete(false);
-        }}
-      />
     </>
+
   );
+
 }

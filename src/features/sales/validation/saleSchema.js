@@ -1,23 +1,17 @@
 import { z } from "zod";
 
+export const saleItemSchema = z.object({
+  productId: z.string().min(1, "Product is required"),
+  quantity: z.coerce.number().positive("Quantity must be greater than zero"),
+  sellingPrice: z.coerce.number().positive("Selling price must be greater than zero"),
+  gst: z.coerce.number().min(0)
+});
+
 export const saleSchema = z.object({
-  customer: z.string().min(1, "Customer is required"),
-
-  product: z.string().min(1, "Product is required"),
-
-  quantity: z.coerce
-    .number()
-    .min(1, "Quantity is required"),
-
-  costPrice: z.coerce
-    .number()
-    .min(0.01, "Cost Price is required"),
-
-  sellingPrice: z.coerce
-    .number()
-    .min(0.01, "Selling Price is required"),
-
-  saleDate: z.string().min(1),
-
-  status: z.string().min(1)
+  customerId: z.string().min(1, "Customer is required"),
+  invoiceNumber: z.string().min(1, "Invoice Number is required"),
+  invoiceDate: z.string().min(1, "Invoice Date is required"),
+  discount: z.coerce.number().min(0),
+  transportCharges: z.coerce.number().min(0),
+  remarks: z.string().optional()
 });

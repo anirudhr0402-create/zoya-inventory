@@ -1,47 +1,42 @@
-import Card from "../../../components/ui/Card";
+import StatsCards from "../../../components/common/StatsCards";
 
 export default function CustomerStats({
   customers
 }) {
-  const total = customers.length;
 
-  const active = customers.filter(
-    (c) => c.status === "Active"
-  ).length;
-
-  const inactive = total - active;
+  const active =
+    customers.filter(
+      c => c.status === "Active"
+    ).length;
 
   return (
-    <div className="mb-6 grid gap-5 md:grid-cols-3">
-      <Card className="p-5">
-        <p className="text-sm text-gray-500">
-          Total Customers
-        </p>
 
-        <h2 className="mt-2 text-3xl font-bold">
-          {total}
-        </h2>
-      </Card>
+    <StatsCards
 
-      <Card className="p-5">
-        <p className="text-sm text-gray-500">
-          Active
-        </p>
+      cards={[
 
-        <h2 className="mt-2 text-3xl font-bold text-green-600">
-          {active}
-        </h2>
-      </Card>
+        {
+          title: "Customers",
+          value: customers.length
+        },
 
-      <Card className="p-5">
-        <p className="text-sm text-gray-500">
-          Inactive
-        </p>
+        {
+          title: "Active",
+          value: active,
+          color: "text-green-600"
+        },
 
-        <h2 className="mt-2 text-3xl font-bold text-red-600">
-          {inactive}
-        </h2>
-      </Card>
-    </div>
+        {
+          title: "Inactive",
+          value:
+            customers.length - active,
+          color: "text-red-600"
+        }
+
+      ]}
+
+    />
+
   );
+
 }

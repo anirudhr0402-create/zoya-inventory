@@ -59,17 +59,25 @@ export default function ProductsPage() {
   const [viewProduct, setViewProduct] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
-  async function handleCreate(product) {
-    try {
-      await addProduct(product);
+async function handleCreate(product) {
+  console.log("1. handleCreate", product);
 
-      toast.success("Product created successfully.");
+  try {
+    console.log("2. Before addProduct");
 
-      setShowAddModal(false);
-    } catch {
-      toast.error("Unable to create product.");
-    }
+    const result = await addProduct(product);
+
+    console.log("3. After addProduct", result);
+
+    toast.success("Product created successfully.");
+
+    setShowAddModal(false);
+  } catch (e) {
+    console.error("Create Error:", e);
+
+    toast.error("Unable to create product.");
   }
+}
 
   async function handleUpdate(product) {
     try {

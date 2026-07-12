@@ -24,28 +24,30 @@ export default function CategoryForm({
   });
 
   useEffect(() => {
-    reset(
-      initialValues || {
+    if (initialValues) {
+      reset(initialValues);
+    } else {
+      reset({
         name: "",
         description: "",
         status: "Active"
-      }
-    );
+      });
+    }
   }, [initialValues, reset]);
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4"
+      className="space-y-5"
     >
       <div>
-        <label className="mb-1 block">
+        <label className="mb-2 block font-medium">
           Category Name
         </label>
 
         <input
           {...register("name")}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border p-3"
         />
 
         <p className="text-sm text-red-500">
@@ -54,14 +56,14 @@ export default function CategoryForm({
       </div>
 
       <div>
-        <label className="mb-1 block">
+        <label className="mb-2 block font-medium">
           Description
         </label>
 
         <textarea
+          rows={4}
           {...register("description")}
-          rows={3}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border p-3"
         />
 
         <p className="text-sm text-red-500">
@@ -70,33 +72,33 @@ export default function CategoryForm({
       </div>
 
       <div>
-        <label className="mb-1 block">
+        <label className="mb-2 block font-medium">
           Status
         </label>
 
         <select
           {...register("status")}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border p-3"
         >
           <option>Active</option>
           <option>Inactive</option>
         </select>
       </div>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded border px-4 py-2"
+          className="rounded-lg border px-5 py-2"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          className="rounded bg-blue-600 px-4 py-2 text-white"
+          className="rounded-lg bg-blue-600 px-6 py-2 text-white"
         >
-          Save
+          Save Category
         </button>
       </div>
     </form>

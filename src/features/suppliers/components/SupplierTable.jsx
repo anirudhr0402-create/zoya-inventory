@@ -1,119 +1,118 @@
-import Card from "../../../components/ui/Card";
-
 export default function SupplierTable({
   suppliers,
+  onView,
   onEdit,
   onDelete
 }) {
-  function getStatusClass(status) {
-    return status === "Active"
-      ? "bg-green-100 text-green-700"
-      : "bg-red-100 text-red-700";
-  }
-
   return (
-    <Card>
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Supplier
-              </th>
+    <div className="overflow-hidden rounded-xl bg-white shadow">
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Contact
-              </th>
+      <table className="min-w-full">
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Phone
-              </th>
+        <thead className="bg-slate-100">
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Email
-              </th>
+          <tr>
 
-              <th className="px-6 py-4 text-center text-sm font-semibold">
-                Status
-              </th>
+            <th className="px-5 py-4 text-left">
+              Supplier
+            </th>
 
-              <th className="px-6 py-4 text-center text-sm font-semibold">
-                Actions
-              </th>
-            </tr>
-          </thead>
+            <th className="px-5 py-4 text-left">
+              Contact
+            </th>
 
-          <tbody>
-            {suppliers.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="py-10 text-center text-gray-500"
+            <th className="px-5 py-4 text-left">
+              Phone
+            </th>
+
+            <th className="px-5 py-4 text-left">
+              GST
+            </th>
+
+            <th className="px-5 py-4 text-center">
+              Status
+            </th>
+
+            <th className="px-5 py-4 text-center">
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {suppliers.map((supplier) => (
+
+            <tr
+              key={supplier.id}
+              className="border-t hover:bg-slate-50"
+            >
+
+              <td className="px-5 py-4 font-medium">
+                {supplier.name}
+              </td>
+
+              <td className="px-5 py-4">
+                {supplier.contactPerson}
+              </td>
+
+              <td className="px-5 py-4">
+                {supplier.phone}
+              </td>
+
+              <td className="px-5 py-4">
+                {supplier.gstNumber}
+              </td>
+
+              <td className="px-5 py-4 text-center">
+
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    supplier.status === "Active"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
                 >
-                  No suppliers found.
-                </td>
-              </tr>
-            )}
+                  {supplier.status}
+                </span>
 
-            {suppliers.map((supplier) => (
-              <tr
-                key={supplier.id}
-                className="border-b hover:bg-gray-50"
-              >
-                <td className="px-6 py-4">
-                  <div className="font-semibold">
-                    {supplier.name}
-                  </div>
+              </td>
 
-                  <div className="text-sm text-gray-500">
-                    {supplier.code}
-                  </div>
-                </td>
+              <td className="space-x-2 px-5 py-4 text-center">
 
-                <td className="px-6 py-4">
-                  {supplier.contactPerson}
-                </td>
+                <button
+                  onClick={() => onView(supplier)}
+                  className="rounded bg-slate-600 px-3 py-1 text-white"
+                >
+                  View
+                </button>
 
-                <td className="px-6 py-4">
-                  {supplier.phone}
-                </td>
+                <button
+                  onClick={() => onEdit(supplier)}
+                  className="rounded bg-blue-600 px-3 py-1 text-white"
+                >
+                  Edit
+                </button>
 
-                <td className="px-6 py-4">
-                  {supplier.email}
-                </td>
+                <button
+                  onClick={() => onDelete(supplier)}
+                  className="rounded bg-red-600 px-3 py-1 text-white"
+                >
+                  Delete
+                </button>
 
-                <td className="px-6 py-4 text-center">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                      supplier.status
-                    )}`}
-                  >
-                    {supplier.status}
-                  </span>
-                </td>
+              </td>
 
-                <td className="px-6 py-4">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => onEdit(supplier)}
-                      className="rounded bg-amber-500 px-3 py-2 text-white hover:bg-amber-600"
-                    >
-                      Edit
-                    </button>
+            </tr>
 
-                    <button
-                      onClick={() => onDelete(supplier)}
-                      className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
+          ))}
+
+        </tbody>
+
+      </table>
+
+    </div>
   );
 }

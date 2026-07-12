@@ -1,97 +1,113 @@
-import Card from "../../../components/ui/Card";
-
 export default function CategoryTable({
   categories,
   onEdit,
   onDelete
 }) {
-  function getStatusClass(status) {
-    return status === "Active"
-      ? "bg-green-100 text-green-700"
-      : "bg-red-100 text-red-700";
-  }
-
   return (
-    <Card>
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Category
-              </th>
+    <div className="overflow-hidden rounded-xl bg-white shadow">
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Description
-              </th>
+      <table className="min-w-full">
 
-              <th className="px-6 py-4 text-center text-sm font-semibold">
-                Status
-              </th>
+        <thead className="bg-slate-100">
 
-              <th className="px-6 py-4 text-center text-sm font-semibold">
-                Actions
-              </th>
-            </tr>
-          </thead>
+          <tr>
 
-          <tbody>
-            {categories.length === 0 && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="py-10 text-center text-gray-500"
+            <th className="px-5 py-4 text-left">
+              Name
+            </th>
+
+            <th className="px-5 py-4 text-left">
+              Description
+            </th>
+
+            <th className="px-5 py-4 text-center">
+              Status
+            </th>
+
+            <th className="px-5 py-4 text-center">
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {categories.map(category => (
+
+            <tr
+              key={category.id}
+              className="border-t"
+            >
+
+              <td className="px-5 py-4 font-medium">
+                {category.name}
+              </td>
+
+              <td className="px-5 py-4">
+                {category.description}
+              </td>
+
+              <td className="px-5 py-4 text-center">
+
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    category.status === "Active"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
                 >
-                  No categories found.
-                </td>
-              </tr>
-            )}
+                  {category.status}
+                </span>
 
-            {categories.map((category) => (
-              <tr
-                key={category.id}
-                className="border-b hover:bg-gray-50"
+              </td>
+
+              <td className="space-x-2 px-5 py-4 text-center">
+
+                <button
+                  onClick={() =>
+                    onEdit(category)
+                  }
+                  className="rounded bg-blue-600 px-3 py-1 text-white"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() =>
+                    onDelete(category)
+                  }
+                  className="rounded bg-red-600 px-3 py-1 text-white"
+                >
+                  Delete
+                </button>
+
+              </td>
+
+            </tr>
+
+          ))}
+
+          {!categories.length && (
+
+            <tr>
+
+              <td
+                colSpan="4"
+                className="py-8 text-center text-slate-500"
               >
-                <td className="px-6 py-4 font-medium">
-                  {category.name}
-                </td>
+                No Categories Found
+              </td>
 
-                <td className="px-6 py-4">
-                  {category.description}
-                </td>
+            </tr>
 
-                <td className="px-6 py-4 text-center">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                      category.status
-                    )}`}
-                  >
-                    {category.status}
-                  </span>
-                </td>
+          )}
 
-                <td className="px-6 py-4">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => onEdit(category)}
-                      className="rounded bg-amber-500 px-3 py-2 text-white hover:bg-amber-600"
-                    >
-                      Edit
-                    </button>
+        </tbody>
 
-                    <button
-                      onClick={() => onDelete(category)}
-                      className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </Card>
+      </table>
+
+    </div>
   );
 }

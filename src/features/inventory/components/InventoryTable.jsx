@@ -78,7 +78,7 @@ export default function InventoryTable({
                   </td>
 
                   <td className="px-6 py-4 text-right">
-                    INR {item.unitPrice.toFixed(2)}
+                    INR {Number(item.averageCost || 0).toFixed(2)}
                   </td>
 
                   <td className="px-6 py-4 text-center">

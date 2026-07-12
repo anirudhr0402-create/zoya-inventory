@@ -1,33 +1,27 @@
 export default function CategoryToolbar({
   search,
   onSearch,
-  onAdd,
-  sortField,
-  sortDirection,
-  onSortChange
+  onAdd
 }) {
   return (
-   <div className="flex flex-col gap-3 md:flex-row">
-  <input
-    value={search}
-    onChange={(e) => onSearch(e.target.value)}
-    placeholder="Search categories..."
-    className="w-full rounded-lg border px-4 py-2 md:w-80"
-  />
+    <div className="mb-6 flex flex-col gap-4 rounded-xl bg-white p-5 shadow md:flex-row md:items-center md:justify-between">
 
-  <select
-    value={sortField}
-    onChange={(e) => onSortChange(e.target.value)}
-    className="rounded-lg border px-4 py-2"
-  >
-    <option value="name">Name</option>
-    <option value="description">Description</option>
-    <option value="status">Status</option>
-  </select>
+      <input
+        value={search}
+        onChange={(e) =>
+          onSearch(e.target.value)
+        }
+        placeholder="Search category..."
+        className="w-full rounded-lg border p-3 md:w-96"
+      />
 
-  <span className="flex items-center rounded-lg border px-4">
-    {sortDirection === "asc" ? "↑ Asc" : "↓ Desc"}
-  </span>
-</div>
+      <button
+        onClick={onAdd}
+        className="rounded-lg bg-blue-600 px-5 py-3 text-white"
+      >
+        + Add Category
+      </button>
+
+    </div>
   );
 }

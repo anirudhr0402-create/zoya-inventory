@@ -2,154 +2,107 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import PageHeader from "../../../components/ui/PageHeader";
-import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+
+import SaleForm from "../components/SaleForm";
 
 import useSales from "../hooks/useSales";
-import useSaleSearch from "../hooks/useSaleSearch";
-import useSaleSort from "../hooks/useSaleSort";
 
-import SaleStats from "../components/SaleStats";
-import SaleTable from "../components/SaleTable";
-import SaleModal from "../components/SaleModal";
-import SaleToolbar from "../components/SaleToolbar";
+import useProducts from "../../products/hooks/useProducts";
 
-import Pagination from "../../products/components/Pagination";
-import usePagination from "../../products/hooks/usePagination";
+import { decreaseStock } from "../../inventory/utils/updateStock";
 
 export default function SalesPage() {
-  const {
-    data = [],
-    isLoading,
-    addSale,
-    updateSale,
-    deleteSale
-  } = useSales();
+
+  const { mutateAsync: saveSale } =
+    useSales();
 
   const {
-    search,
-    setSearch,
-    filteredSales
-  } = useSaleSearch(data);
+    data: products = []
+  } = useProducts();
 
-  const {
-    sortedSales,
-    sortField,
-    sortDirection,
-    changeSort
-  } = useSaleSort(filteredSales);
+  const [saving, setSaving] =
+    useState(false);
 
-  const {
-    page,
-    pageSize,
-    totalPages,
-    paginatedData,
-    nextPage,
-    previousPage,
-    setPage,
-    setPageSize
-  } = usePagination(sortedSales, 5);
+  async function handleSubmit(data) {
 
-  const [editingSale, setEditingSale] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+    try {
 
-  const [selectedSale, setSelectedSale] = useState(null);
-  const [showDelete, setShowDelete] = useState(false);
+      setSaving(true);
 
-  async function handleCreate(values) {
-    await addSale(values);
-    toast.success("Sale created successfully.");
-    setShowModal(false);
-  }
+      for (const item of data.items) {
 
-  async function handleUpdate(values) {
-    await updateSale({
-      ...editingSale,
-      ...values
-    });
+        const product =
+          products.find(
+            p => p.id === item.productId
+          );
 
-    toast.success("Sale updated successfully.");
+        if (!product) {
 
-    setEditingSale(null);
-    setShowModal(false);
-  }
+          toast.error("Product not found.");
 
-  async function handleDelete() {
-    await deleteSale(selectedSale.id);
+          return;
 
-    toast.success("Sale deleted successfully.");
+        }
 
-    setSelectedSale(null);
-    setShowDelete(false);
-  }
+        await decreaseStock({
 
-  if (isLoading) {
-    return <div className="p-6">Loading sales...</div>;
+          product,
+
+          quantity: Number(
+            item.quantity
+          )
+
+        });
+
+      }
+
+      await saveSale(data);
+
+      toast.success(
+        "Sale saved successfully."
+      );
+
+    } catch (error) {
+
+      toast.error(
+        error.message ||
+        "Unable to save sale."
+      );
+
+    } finally {
+
+      setSaving(false);
+
+    }
+
   }
 
   return (
+
     <>
+
       <PageHeader
-        title="Sales"
-        subtitle="Manage sales invoices"
+
+        title="Sales Entry"
+
+        subtitle="Create customer sales invoice"
+
       />
 
-      <SaleStats sales={data} />
+      <SaleForm
 
-      <SaleToolbar
-        search={search}
-        onSearch={setSearch}
-        onAdd={() => {
-          setEditingSale(null);
-          setShowModal(true);
-        }}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSortChange={changeSort}
+        loading={saving}
+
+        onSubmit={handleSubmit}
+
+        onCancel={() =>
+          history.back()
+        }
+
       />
 
-      <SaleTable
-        sales={paginatedData}
-        onEdit={(sale) => {
-          setEditingSale(sale);
-          setShowModal(true);
-        }}
-        onDelete={(sale) => {
-          setSelectedSale(sale);
-          setShowDelete(true);
-        }}
-      />
-
-      <Pagination
-        page={page}
-        pageSize={pageSize}
-        totalPages={totalPages}
-        nextPage={nextPage}
-        previousPage={previousPage}
-        setPage={setPage}
-        setPageSize={setPageSize}
-      />
-
-      <SaleModal
-        open={showModal}
-        title={editingSale ? "Edit Sale" : "Add Sale"}
-        initialValues={editingSale}
-        onSubmit={editingSale ? handleUpdate : handleCreate}
-        onClose={() => {
-          setEditingSale(null);
-          setShowModal(false);
-        }}
-      />
-
-      <ConfirmDialog
-        open={showDelete}
-        title="Delete Sale"
-        message={`Delete "${selectedSale?.invoiceNo}"?`}
-        onConfirm={handleDelete}
-        onCancel={() => {
-          setSelectedSale(null);
-          setShowDelete(false);
-        }}
-      />
     </>
+
   );
+
 }

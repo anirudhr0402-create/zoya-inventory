@@ -3,30 +3,23 @@ import Card from "../../../components/ui/Card";
 export default function SupplierStats({
   suppliers
 }) {
-  const total = suppliers.length;
-
   const active = suppliers.filter(
-    (s) => s.status === "Active"
+    s => s.status === "Active"
   ).length;
 
-  const inactive = total - active;
-
   return (
-    <div className="mb-6 grid gap-5 md:grid-cols-3">
+    <div className="mb-6 grid gap-6 md:grid-cols-3">
+
       <Card className="p-5">
-        <p className="text-sm text-gray-500">
-          Total Suppliers
-        </p>
+        <p>Total Suppliers</p>
 
         <h2 className="mt-2 text-3xl font-bold">
-          {total}
+          {suppliers.length}
         </h2>
       </Card>
 
       <Card className="p-5">
-        <p className="text-sm text-gray-500">
-          Active
-        </p>
+        <p>Active Suppliers</p>
 
         <h2 className="mt-2 text-3xl font-bold text-green-600">
           {active}
@@ -34,14 +27,13 @@ export default function SupplierStats({
       </Card>
 
       <Card className="p-5">
-        <p className="text-sm text-gray-500">
-          Inactive
-        </p>
+        <p>Inactive Suppliers</p>
 
         <h2 className="mt-2 text-3xl font-bold text-red-600">
-          {inactive}
+          {suppliers.length - active}
         </h2>
       </Card>
+
     </div>
   );
 }
