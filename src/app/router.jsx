@@ -13,11 +13,11 @@ import ProductsPage from "../features/products/pages/ProductsPage";
 import CategoriesPage from "../features/categories/pages/CategoriesPage";
 import InventoryPage from "../features/inventory/pages/InventoryPage";
 import SuppliersPage from "../features/suppliers/pages/SuppliersPage";
-import CustomersPage from "../pages/CustomersPage";
-import PurchasesPage from "../pages/PurchasesPage";
-import SalesPage from "../pages/SalesPage";
-import ReportsPage from "../pages/ReportsPage";
+import PurchasesPage from "../features/purchases/pages/PurchasesPage";
+import SalesPage from "../features/sales/pages/SalesPage";
+import ReportsPage from "../features/reports/pages/ReportsPage";
 import NotFoundPage from "../pages/NotFoundPage";
+import CustomersPage from "../features/customers/pages/CustomersPage";
 
 const protectedLayout = (
     <ProtectedRoute>
