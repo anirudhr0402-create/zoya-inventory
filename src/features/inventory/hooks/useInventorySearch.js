@@ -6,28 +6,40 @@ export default function useInventorySearch(
   const [search, setSearch] =
     useState("");
 
-  const filteredInventory =
-    useMemo(() => {
-      const keyword =
-        search.toLowerCase();
+ const filteredInventory =
+  useMemo(() => {
+    const keyword =
+      search.toLowerCase().trim();
 
-      if (!keyword) return data;
+    if (!keyword) return data ?? [];
 
-      return data.filter(item =>
-        item.productCode
-          .toLowerCase()
-          .includes(keyword) ||
-        item.productName
-          .toLowerCase()
-          .includes(keyword) ||
-        item.category
-          .toLowerCase()
-          .includes(keyword) ||
-        item.supplier
-          .toLowerCase()
-          .includes(keyword)
+    return (data ?? []).filter(item => {
+
+      const productCode =
+        String(item.productCode ?? "")
+          .toLowerCase();
+
+      const productName =
+        String(item.productName ?? "")
+          .toLowerCase();
+
+      const category =
+        String(item.category ?? "")
+          .toLowerCase();
+
+      const supplier =
+        String(item.supplier ?? "")
+          .toLowerCase();
+
+      return (
+        productCode.includes(keyword) ||
+        productName.includes(keyword) ||
+        category.includes(keyword) ||
+        supplier.includes(keyword)
       );
-    }, [data, search]);
+    });
+
+  }, [data, search]);
 
   return {
     search,

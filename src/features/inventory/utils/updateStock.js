@@ -6,129 +6,225 @@ import {
 } from "../services/inventoryService";
 
 export async function increaseStock({
-
   product,
-
   quantity,
-
   price
-
 }) {
+  quantity = Number(quantity);
+  price = Number(price);
 
-  const item =
-    await getInventoryItem(
-      product.id
+  let inventory =
+    await getInventoryItem(product.id);
+
+  if (!inventory) {
+    inventory = {
+      productId: product.id,
+      productCode:
+        product.code || "",
+      productName:
+        product.name,
+      category:
+        product.category || "",
+      quantity: 0,
+      averageCost: 0,
+      reorderLevel:
+        Number(
+          product.reorderLevel ||
+            10
+        )
+    };
+  }
+
+  const currentQty =
+    Number(
+      inventory.quantity || 0
     );
 
-  if (!item) {
+  const currentCost =
+    Number(
+      inventory.averageCost ||
+        0
+    );
 
-   await saveInventory({
-  productId: product.id,
-  productName: product.name,
-  quantity: quantity,
-  averageCost: Number(price),
-  inventoryValue: Number(quantity) * Number(price),
-  reorderLevel: 10,
-  lastPurchaseDate: new Date().toISOString(),
-  lastSaleDate: null
-});
+  const totalQty =
+    currentQty + quantity;
 
+  const averageCost =
+    totalQty === 0
+      ? 0
+      : (
+          currentQty *
+            currentCost +
+          quantity * price
+        ) / totalQty;
+
+  const updated = {
+    ...inventory,
+    quantity: totalQty,
+    averageCost: Number(
+      averageCost.toFixed(2)
+    ),
+    inventoryValue: Number(
+      (
+        totalQty *
+        averageCost
+      ).toFixed(2)
+    ),
+    lastPurchaseDate:
+      new Date().toISOString()
+  };
+
+  if (currentQty === 0) {
+    await saveInventory(updated);
   } else {
-
-    const totalStock =
-      item.quantity + quantity;
-
-    const totalValue =
-
-      item.quantity *
-        item.averageCost +
-
-      quantity * price;
-
-    await updateInventory({
-
-      ...item,
-
-      quantity: totalStock,
-
-      averageCost:
-        totalValue / totalStock,
-
-      inventoryValue:
-        totalValue
-
-    });
-
+    await updateInventory(
+      updated
+    );
   }
 
   await addLedger({
-
     productId:
       product.id,
-
+    productName:
+      product.name,
     type: "PURCHASE",
-
     quantity,
-
-    price
-
+    price,
+    balance: totalQty,
+    remarks:
+      "Purchase Entry"
   });
-
 }
 
 export async function decreaseStock({
-
   product,
-
   quantity
-
 }) {
+  quantity = Number(quantity);
 
-  const item =
+  const inventory =
     await getInventoryItem(
       product.id
     );
 
-  if (!item)
+  if (!inventory) {
     throw new Error(
-      "Stock not available."
+      "Inventory record not found."
+    );
+  }
+
+  const currentQty =
+    Number(
+      inventory.quantity || 0
     );
 
-  if (
-    item.quantity <
-    quantity
-  )
+  if (currentQty < quantity) {
     throw new Error(
-      "Insufficient Stock"
+      `Only ${currentQty} items available in stock.`
     );
+  }
 
-  await updateInventory({
+  const remaining =
+    currentQty - quantity;
 
-    ...item,
+  const updated = {
+    ...inventory,
+    quantity: remaining,
+    inventoryValue: Number(
+      (
+        remaining *
+        Number(
+          inventory.averageCost ||
+            0
+        )
+      ).toFixed(2)
+    ),
+    lastSaleDate:
+      new Date().toISOString()
+  };
 
-    quantity:
-      item.quantity -
-      quantity,
-
-    inventoryValue:
-      (item.quantity -
-        quantity) *
-      item.averageCost
-
-  });
+  await updateInventory(
+    updated
+  );
 
   await addLedger({
-
     productId:
       product.id,
-
+    productName:
+      product.name,
     type: "SALE",
-
     quantity,
-
     price:
-      item.averageCost
+      inventory.averageCost,
+    balance: remaining,
+    remarks:
+      "Sales Entry"
+  });
+}
 
+export async function adjustStock({
+  inventory,
+  type,
+  quantity,
+  remarks
+}) {
+  quantity = Number(quantity);
+
+  let current =
+    Number(
+      inventory.quantity || 0
+    );
+
+  switch (type) {
+    case "Purchase":
+    case "Returned":
+    case "Opening Stock":
+      current += quantity;
+      break;
+
+    case "Sale":
+    case "Damaged":
+      current -= quantity;
+
+      if (current < 0)
+        current = 0;
+
+      break;
+
+    default:
+      current = quantity;
+  }
+
+  const updated = {
+    ...inventory,
+    quantity: current,
+    inventoryValue: Number(
+      (
+        current *
+        Number(
+          inventory.averageCost ||
+            0
+        )
+      ).toFixed(2)
+    )
+  };
+
+  await updateInventory(
+    updated
+  );
+
+  await addLedger({
+    productId:
+      inventory.productId,
+    productName:
+      inventory.productName,
+    type,
+    quantity,
+    price:
+      inventory.averageCost,
+    balance: current,
+    remarks
   });
 
+  return updated;
 }

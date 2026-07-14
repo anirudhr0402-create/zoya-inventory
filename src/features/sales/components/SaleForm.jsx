@@ -1,222 +1,114 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import {
+  ShoppingBag,
+  Package,
+  Users,
+  Hash,
+  IndianRupee,
+  CalendarDays,
+  FileText,
+  Save,
+  X,
+  Sparkles
+} from "lucide-react";
 
 import { saleSchema } from "../validation/saleSchema";
-import { DEFAULT_SALE } from "../constants/saleDefaults";
-
+import useProducts from "../../products/hooks/useProducts";
 import useCustomers from "../../customers/hooks/useCustomers";
 
-import SaleItemsTable from "./SaleItemsTable";
-import SaleSummary from "./SaleSummary";
-
-import useSaleItems from "../hooks/useSaleItems";
-
-import calculateSaleTotals from "../utils/calculateSaleTotals";
-
 export default function SaleForm({
+  initialValues,
   onSubmit,
   onCancel
 }) {
+  const { data: products = [] } =
+    useProducts();
 
-  const {
-    data: customers = []
-  } = useCustomers();
-
-  const {
-    items,
-    addItem,
-    removeItem,
-    updateItem
-  } = useSaleItems();
+  const { data: customers = [] } =
+    useCustomers();
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
+    reset,
     formState: {
       errors,
       isSubmitting
     }
   } = useForm({
-
-    resolver: zodResolver(
-      saleSchema
-    ),
-
-    defaultValues:
-      DEFAULT_SALE
-
+    resolver: zodResolver(saleSchema),
+    defaultValues: {
+      productId: "",
+      customer: "",
+      quantity: "",
+      unitPrice: "",
+      saleDate: new Date()
+        .toISOString()
+        .split("T")[0],
+      invoiceNumber: "",
+      remarks: ""
+    }
   });
 
-  const discount =
-    watch("discount");
-
-  const transportCharges =
-    watch("transportCharges");
-
-  async function submit(values) {
-
-    if (items.length === 0) {
-
-      toast.error(
-        "Please add at least one product."
-      );
-
-      return;
-
-    }
-
-    for (const item of items) {
-
-      if (!item.productId) {
-
-        toast.error(
-          "Please select a product."
-        );
-
-        return;
-
+  useEffect(() => {
+    reset(
+      initialValues || {
+        productId: "",
+        customer: "",
+        quantity: "",
+        unitPrice: "",
+        saleDate: new Date()
+          .toISOString()
+          .split("T")[0],
+        invoiceNumber: "",
+        remarks: ""
       }
+    );
+  }, [initialValues, reset]);
 
-      if (Number(item.quantity) <= 0) {
-
-        toast.error(
-          "Quantity must be greater than zero."
-        );
-
-        return;
-
-      }
-
-      if (
-        Number(item.sellingPrice) <= 0
-      ) {
-
-        toast.error(
-          "Selling Price must be greater than zero."
-        );
-
-        return;
-
-      }
-
-    }
-
-    const totals =
-      calculateSaleTotals(
-        items,
-        discount,
-        transportCharges
-      );
-
-    await onSubmit({
-
-      ...values,
-
-      items,
-
-      ...totals
-
-    });
-
-  }
+  const inputClass = error =>
+    `w-full rounded-2xl border px-5 py-4 outline-none transition duration-300 focus:ring-4 focus:ring-indigo-100 ${
+      error
+        ? "border-red-500"
+        : "border-slate-200"
+    }`;
 
   return (
-
     <form
-      onSubmit={handleSubmit(submit)}
-      className="space-y-6"
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-7"
     >
+      <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-white shadow-xl">
 
-      <div className="rounded-xl bg-white p-6 shadow">
+        <div className="flex items-center gap-5">
 
-        <div className="grid gap-5 md:grid-cols-2">
+          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 backdrop-blur">
+
+            <ShoppingBag size={38} />
+
+          </div>
 
           <div>
 
-            <label className="mb-2 block font-medium">
-              Customer <span className="text-red-600">*</span>
-            </label>
+            <div className="flex items-center gap-2">
 
-            <select
-              {...register("customerId")}
-              className={`w-full rounded border p-3 ${
-                errors.customerId
-                  ? "border-red-500"
-                  : ""
-              }`}
-            >
+              <h2 className="text-3xl font-bold">
 
-              <option value="">
-                Select Customer
-              </option>
+                {initialValues
+                  ? "Edit Sale"
+                  : "New Sale"}
 
-              {customers.map(customer => (
+              </h2>
 
-                <option
-                  key={customer.id}
-                  value={customer.id}
-                >
-                  {customer.name}
-                </option>
+              <Sparkles size={18} />
 
-              ))}
+            </div>
 
-            </select>
-
-            <p className="mt-1 text-sm text-red-600">
-              {errors.customerId?.message}
+            <p className="mt-2 text-indigo-100">
+              Record customer sales professionally.
             </p>
-
-          </div>
-
-          <div>
-
-            <label className="mb-2 block font-medium">
-              Invoice Number <span className="text-red-600">*</span>
-            </label>
-
-            <input
-              {...register("invoiceNumber")}
-              className={`w-full rounded border p-3 ${
-                errors.invoiceNumber
-                  ? "border-red-500"
-                  : ""
-              }`}
-            />
-
-            <p className="mt-1 text-sm text-red-600">
-              {errors.invoiceNumber?.message}
-            </p>
-
-          </div>
-
-          <div>
-
-            <label className="mb-2 block font-medium">
-              Invoice Date <span className="text-red-600">*</span>
-            </label>
-
-            <input
-              type="date"
-              {...register("invoiceDate")}
-              className="w-full rounded border p-3"
-            />
-
-          </div>
-
-          <div>
-
-            <label className="mb-2 block font-medium">
-              Remarks
-            </label>
-
-            <input
-              {...register("remarks")}
-              className="w-full rounded border p-3"
-            />
 
           </div>
 
@@ -224,55 +116,190 @@ export default function SaleForm({
 
       </div>
 
-      <SaleItemsTable
-        items={items}
-        addItem={addItem}
-        removeItem={removeItem}
-        updateItem={updateItem}
-      />
+      <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
 
-      <SaleSummary
-        items={items}
-        discount={discount}
-        transportCharges={transportCharges}
-        onDiscountChange={(value)=>
-          setValue(
-            "discount",
-            Number(value)
-          )
-        }
-        onTransportChange={(value)=>
-          setValue(
-            "transportCharges",
-            Number(value)
-          )
-        }
-      />
+        <div className="grid gap-6 md:grid-cols-2">
 
-      <div className="flex justify-end gap-3">
+          <div>
+
+            <label className="mb-2 flex items-center gap-2 font-semibold">
+
+              <Package size={18} />
+
+              Product
+
+            </label>
+
+            <select
+              {...register("productId")}
+              className={inputClass(errors.productId)}
+            >
+              <option value="">
+                Select Product
+              </option>
+
+              {products.map(product => (
+                <option
+                  key={product.id}
+                  value={product.id}
+                >
+                  {product.name}
+                </option>
+              ))}
+
+            </select>
+
+          </div>
+
+          <div>
+
+            <label className="mb-2 flex items-center gap-2 font-semibold">
+
+              <Users size={18} />
+
+              Customer
+
+            </label>
+
+            <select
+              {...register("customer")}
+              className={inputClass(errors.customer)}
+            >
+              <option value="">
+                Select Customer
+              </option>
+
+              {customers.map(customer => (
+                <option
+                  key={customer.id}
+                  value={customer.name}
+                >
+                  {customer.name}
+                </option>
+              ))}
+
+            </select>
+
+          </div>
+
+          <div>
+
+            <label className="mb-2 flex items-center gap-2 font-semibold">
+
+              <Hash size={18} />
+
+              Quantity
+
+            </label>
+
+            <input
+              type="number"
+              {...register("quantity")}
+              className={inputClass(errors.quantity)}
+            />
+
+          </div>
+
+          <div>
+
+            <label className="mb-2 flex items-center gap-2 font-semibold">
+
+              <IndianRupee size={18} />
+
+              Unit Price
+
+            </label>
+
+            <input
+              type="number"
+              step="0.01"
+              {...register("unitPrice")}
+              className={inputClass(errors.unitPrice)}
+            />
+
+          </div>
+
+          <div>
+
+            <label className="mb-2 flex items-center gap-2 font-semibold">
+
+              <CalendarDays size={18} />
+
+              Sale Date
+
+            </label>
+
+            <input
+              type="date"
+              {...register("saleDate")}
+              className={inputClass(errors.saleDate)}
+            />
+
+          </div>
+
+          <div>
+
+            <label className="mb-2 flex items-center gap-2 font-semibold">
+
+              <FileText size={18} />
+
+              Invoice Number
+
+            </label>
+
+            <input
+              {...register("invoiceNumber")}
+              className={inputClass(errors.invoiceNumber)}
+            />
+
+          </div>
+
+        </div>
+
+        <div className="mt-6">
+
+          <label className="mb-2 flex items-center gap-2 font-semibold">
+
+            <FileText size={18} />
+
+            Remarks
+
+          </label>
+
+          <textarea
+            rows={4}
+            {...register("remarks")}
+            className={inputClass(errors.remarks)}
+          />
+
+        </div>
+
+      </div>
+
+      <div className="flex justify-end gap-4">
 
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border px-5 py-3"
+          className="flex items-center gap-2 rounded-2xl border border-slate-300 px-6 py-3 font-semibold hover:bg-slate-100"
         >
+          <X size={18} />
           Cancel
         </button>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-lg bg-blue-600 px-6 py-3 text-white disabled:opacity-50"
+          className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:shadow-indigo-300"
         >
+          <Save size={18} />
           {isSubmitting
-            ? "Saving Sale..."
+            ? "Saving..."
             : "Save Sale"}
         </button>
 
       </div>
 
     </form>
-
   );
-
 }

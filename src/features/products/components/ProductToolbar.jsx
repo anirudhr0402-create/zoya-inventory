@@ -1,46 +1,111 @@
-export default function ProductToolbar({
-    search,
-    onSearch,
-    onAdd,
-    sortField,
-    sortDirection,
-    onSortChange
-}) {
-    return (
-        <div className="mb-6 rounded-xl bg-white p-5 shadow-sm">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            
-                <input
-                    value={search}
-                    onChange={(e) => onSearch(e.target.value)}
-                    placeholder="Search by code, product, supplier, category or status..."
-                    className="w-full rounded-lg border px-4 py-2 md:w-96"
-                />
-                
-                <select
-                    value={sortField}
-                    onChange={(e) => onSortChange(e.target.value)}
-                    className="rounded-lg border px-4 py-2"
-                >
-                    <option value="name">Name</option>
-                    <option value="category">Category</option>
-                    <option value="supplier">Supplier</option>
-                    <option value="price">Price</option>
-                    <option value="stock">Stock</option>
-                    <option value="status">Status</option>
-                </select>
+import {
+  Search,
+  PackagePlus,
+  Download,
+  RefreshCw,
+  Boxes,
+  Sparkles
+} from "lucide-react";
 
-                <span className="flex items-center rounded-lg border px-4">
-                    {sortDirection === "asc" ? "↑ Asc" : "↓ Desc"}
-                </span>
+export default function ProductToolbar({
+  search,
+  onSearch,
+  onAdd,
+  onRefresh = () => {},
+  onExport = () => {}
+}) {
+  return (
+    <div className="mb-8 overflow-hidden rounded-[28px] bg-white shadow-lg ring-1 ring-slate-200">
+
+      <div className="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-[1px]">
+
+        <div className="rounded-[27px] bg-white p-7">
+
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+
+            <div className="flex items-center gap-4">
+
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl">
+
+                <Boxes size={30} />
+
+              </div>
+
+              <div>
+
+                <div className="flex items-center gap-2">
+
+                  <h2 className="text-2xl font-bold text-slate-800">
+                    Product Catalog
+                  </h2>
+
+                  <Sparkles
+                    size={18}
+                    className="text-amber-500"
+                  />
+
+                </div>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Organize products, pricing and categories.
+                </p>
+
+              </div>
+
             </div>
 
+            <div className="relative w-full xl:max-w-xl">
+
+              <Search
+                size={20}
+                className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+
+              <input
+                value={search}
+                onChange={(e) =>
+                  onSearch(e.target.value)
+                }
+                placeholder="Search by Product Name, Code or Category..."
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-4 pl-14 pr-5 text-[15px] font-medium text-slate-700 outline-none transition-all duration-300 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+              />
+
+            </div>
+
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center justify-end gap-3">
+
             <button
-                onClick={onAdd}
-                className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white hover:bg-blue-700"
+              onClick={onExport}
+              className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 font-semibold text-emerald-700 transition duration-300 hover:-translate-y-1 hover:bg-emerald-100"
             >
-                + Add Product
+              <Download size={18} />
+              Export
             </button>
+
+            <button
+              onClick={onRefresh}
+              className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 transition duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+            >
+              <RefreshCw size={18} />
+              Refresh
+            </button>
+
+            <button
+              onClick={onAdd}
+              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 font-semibold text-white shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-indigo-300"
+            >
+              <PackagePlus size={18} />
+              Add Product
+            </button>
+
+          </div>
+
         </div>
-    );
+
+      </div>
+
+    </div>
+  );
 }

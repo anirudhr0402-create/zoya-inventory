@@ -1,119 +1,198 @@
+import {
+  Users,
+  Eye,
+  Pencil,
+  Trash2,
+  Phone,
+  Mail,
+  CircleCheck
+} from "lucide-react";
+
 import Card from "../../../components/ui/Card";
 
 export default function CustomerTable({
-  customers,
+  customers = [],
+  onView,
   onEdit,
   onDelete
 }) {
-  function getStatusClass(status) {
-    return status === "Active"
-      ? "bg-green-100 text-green-700"
-      : "bg-red-100 text-red-700";
-  }
-
   return (
-    <Card>
+    <Card className="overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
+
       <div className="overflow-x-auto">
-        <table className="min-w-full table-auto">
-          <thead className="border-b bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold">
+
+        <table className="min-w-full">
+
+          <thead className="sticky top-0 bg-slate-50">
+
+            <tr className="border-b">
+
+              <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
                 Customer
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Phone
+              <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                Contact
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
+              <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
                 Email
               </th>
 
-              <th className="px-6 py-4 text-left text-sm font-semibold">
-                Address
-              </th>
-
-              <th className="px-6 py-4 text-center text-sm font-semibold">
+              <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
                 Status
               </th>
 
-              <th className="px-6 py-4 text-center text-sm font-semibold">
+              <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
                 Actions
               </th>
+
             </tr>
+
           </thead>
 
           <tbody>
+
             {customers.length === 0 && (
+
               <tr>
+
                 <td
-                  colSpan={6}
-                  className="py-10 text-center text-gray-500"
+                  colSpan={5}
+                  className="py-24 text-center"
                 >
-                  No customers found.
+
+                  <Users
+                    size={54}
+                    className="mx-auto mb-4 text-slate-300"
+                  />
+
+                  <h2 className="text-xl font-bold text-slate-700">
+                    No Customers Found
+                  </h2>
+
+                  <p className="mt-2 text-slate-500">
+                    Add your first customer.
+                  </p>
+
                 </td>
+
               </tr>
+
             )}
 
-            {customers.map((customer) => (
+            {customers.map((customer, index) => (
+
               <tr
                 key={customer.id}
-                className="border-b hover:bg-gray-50"
+                className={`transition-all hover:bg-indigo-50 ${
+                  index % 2 === 0
+                    ? "bg-white"
+                    : "bg-slate-50/40"
+                }`}
               >
-                <td className="px-6 py-4">
-                  <div className="font-semibold">
-                    {customer.name}
+
+                <td className="px-6 py-5">
+
+                  <div className="flex items-center gap-4">
+
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow">
+
+                      <Users size={22} />
+
+                    </div>
+
+                    <div>
+
+                      <h3 className="font-semibold text-slate-800">
+                        {customer.name}
+                      </h3>
+
+                      <p className="text-sm text-slate-500">
+                        {customer.company || "-"}
+                      </p>
+
+                    </div>
+
                   </div>
 
-                  <div className="text-sm text-gray-500">
-                    {customer.code}
+                </td>
+
+                <td className="px-6 py-5">
+
+                  <div className="flex items-center gap-2 text-slate-700">
+
+                    <Phone size={15} />
+
+                    {customer.phone || "-"}
+
                   </div>
+
                 </td>
 
-                <td className="px-6 py-4">
-                  {customer.phone}
+                <td className="px-6 py-5">
+
+                  <div className="flex items-center gap-2 text-slate-700">
+
+                    <Mail size={15} />
+
+                    {customer.email || "-"}
+
+                  </div>
+
                 </td>
 
-                <td className="px-6 py-4">
-                  {customer.email}
-                </td>
+                <td className="px-6 py-5 text-center">
 
-                <td className="px-6 py-4">
-                  {customer.address}
-                </td>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
 
-                <td className="px-6 py-4 text-center">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                      customer.status
-                    )}`}
-                  >
-                    {customer.status}
+                    <CircleCheck size={15} />
+
+                    Active
+
                   </span>
+
                 </td>
 
-                <td className="px-6 py-4">
-                  <div className="flex justify-center gap-2">
+                <td className="px-6 py-5">
+
+                  <div className="flex justify-center gap-3">
+
+                    <button
+                      onClick={() => onView(customer)}
+                      className="rounded-xl bg-slate-100 p-3 text-slate-700 transition hover:-translate-y-1 hover:bg-indigo-100 hover:text-indigo-700"
+                    >
+                      <Eye size={18} />
+                    </button>
+
                     <button
                       onClick={() => onEdit(customer)}
-                      className="rounded bg-amber-500 px-3 py-2 text-white hover:bg-amber-600"
+                      className="rounded-xl bg-amber-100 p-3 text-amber-700 transition hover:-translate-y-1 hover:bg-amber-200"
                     >
-                      Edit
+                      <Pencil size={18} />
                     </button>
 
                     <button
                       onClick={() => onDelete(customer)}
-                      className="rounded bg-red-600 px-3 py-2 text-white hover:bg-red-700"
+                      className="rounded-xl bg-rose-100 p-3 text-rose-700 transition hover:-translate-y-1 hover:bg-rose-200"
                     >
-                      Delete
+                      <Trash2 size={18} />
                     </button>
+
                   </div>
+
                 </td>
+
               </tr>
+
             ))}
+
           </tbody>
+
         </table>
+
       </div>
+
     </Card>
   );
 }

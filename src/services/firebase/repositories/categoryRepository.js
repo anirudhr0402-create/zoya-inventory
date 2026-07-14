@@ -37,19 +37,17 @@ export async function createCategory(category) {
   };
 }
 
-export async function editCategory(
-  id,
-  category
-) {
+export async function editCategory(category) {
+
+  const { id, ...data } = category;
+
   await updateDoc(
     doc(db, COLLECTION, id),
-    category
+    data
   );
 
-  return {
-    id,
-    ...category
-  };
+  return category;
+
 }
 
 export async function removeCategory(id) {

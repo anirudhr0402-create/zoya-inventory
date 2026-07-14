@@ -1,156 +1,279 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  FolderTree,
+  Sparkles,
+  Plus
+} from "lucide-react";
 
 import PageHeader from "../../../components/ui/PageHeader";
+import Modal from "../../../components/ui/Modal";
 
 import useCategories from "../hooks/useCategories";
+import useCategorySearch from "../hooks/useCategorySearch";
+import usePagination from "../../products/hooks/usePagination";
 
 import CategoryToolbar from "../components/CategoryToolbar";
-import CategoryStats from "../components/CategoryStats";
 import CategoryTable from "../components/CategoryTable";
-import CategoryModal from "../components/CategoryModal";
+import CategoryForm from "../components/CategoryForm";
+import CategoryDetailsDrawer from "../components/CategoryDetailsDrawer";
 import DeleteCategoryDialog from "../components/DeleteCategoryDialog";
+import Pagination from "../../products/components/Pagination";
 
 export default function CategoriesPage() {
 
   const {
-    data = [],
-    isLoading,
+    data: categories = [],
     addCategory,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    isLoading
   } = useCategories();
 
-  const [search, setSearch] =
-    useState("");
+  const {
+    search,
+    setSearch,
+    filteredCategories
+  } = useCategorySearch(categories);
 
-  const [editing, setEditing] =
-    useState(null);
-
-  const [selected, setSelected] =
-    useState(null);
+  const {
+    page,
+    pageSize,
+    totalPages,
+    paginatedData,
+    nextPage,
+    previousPage,
+    setPage,
+    setPageSize
+  } = usePagination(
+    filteredCategories,
+    10
+  );
 
   const [showModal, setShowModal] =
     useState(false);
 
-  const [showDelete, setShowDelete] =
-    useState(false);
+  const [editing, setEditing] =
+    useState(null);
 
-  const filtered = data.filter(category =>
-    category.name
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const [viewing, setViewing] =
+    useState(null);
 
-  async function handleCreate(values) {
+  const [deleting, setDeleting] =
+    useState(null);
 
-    await addCategory(values);
+  async function save(values) {
 
-    toast.success(
-      "Category Added"
-    );
+    try {
 
-    setShowModal(false);
+      if (editing) {
+
+        await updateCategory({
+          ...editing,
+          ...values
+        });
+
+        toast.success(
+          "Category updated successfully."
+        );
+
+      } else {
+
+        await addCategory(values);
+
+        toast.success(
+          "Category created successfully."
+        );
+
+      }
+
+      setEditing(null);
+      setShowModal(false);
+
+    } catch {
+
+      toast.error(
+        "Unable to save category."
+      );
+
+    }
+
   }
 
-  async function handleUpdate(values) {
+  async function remove() {
 
-    await updateCategory({
-      ...editing,
-      ...values
-    });
+    try {
 
-    toast.success(
-      "Category Updated"
-    );
+      await deleteCategory(
+        deleting.id
+      );
 
-    setEditing(null);
+      toast.success(
+        "Category deleted successfully."
+      );
 
-    setShowModal(false);
+      setDeleting(null);
+
+    } catch {
+
+      toast.error(
+        "Unable to delete category."
+      );
+
+    }
+
   }
 
-  async function handleDelete() {
+  if (isLoading) {
 
-    await deleteCategory(selected.id);
-
-    toast.success(
-      "Category Deleted"
-    );
-
-    setSelected(null);
-
-    setShowDelete(false);
-  }
-
-  if (isLoading)
     return (
-      <div className="p-6">
-        Loading...
+
+      <div className="space-y-8">
+
+        <PageHeader
+          title="Categories"
+          subtitle="Loading..."
+        />
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+          {[1,2,3,4].map(item=>(
+            <div
+              key={item}
+              className="h-40 animate-pulse rounded-3xl bg-white shadow-sm"
+            />
+          ))}
+
+        </div>
+
       </div>
+
     );
+
+  }
 
   return (
-    <>
+
+    <div className="space-y-8">
 
       <PageHeader
         title="Categories"
-        subtitle="Manage Product Categories"
+        subtitle="Organize your products professionally."
       />
 
-      <CategoryStats
-        categories={data}
-      />
+      <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-white shadow-xl">
+
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
+          <div>
+
+            <div className="flex items-center gap-3">
+
+              <FolderTree size={32}/>
+
+              <h2 className="text-3xl font-bold">
+
+                Category Master
+
+              </h2>
+
+              <Sparkles
+                size={20}
+              />
+
+            </div>
+
+            <p className="mt-3 text-indigo-100">
+
+              Create and organize categories
+              for your inventory.
+
+            </p>
+
+          </div>
+
+          <button
+            onClick={()=>{
+              setEditing(null);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 rounded-2xl bg-white px-7 py-4 font-semibold text-indigo-700 shadow-lg transition hover:-translate-y-1"
+          >
+
+            <Plus size={20}/>
+
+            Add Category
+
+          </button>
+
+        </div>
+
+      </div>
 
       <CategoryToolbar
         search={search}
         onSearch={setSearch}
-        onAdd={() => {
+        onAdd={()=>{
           setEditing(null);
           setShowModal(true);
         }}
       />
 
       <CategoryTable
-        categories={filtered}
-        onEdit={(category) => {
+        categories={paginatedData}
+        onView={setViewing}
+        onEdit={(category)=>{
           setEditing(category);
           setShowModal(true);
         }}
-        onDelete={(category) => {
-          setSelected(category);
-          setShowDelete(true);
-        }}
+        onDelete={setDeleting}
       />
 
-      <CategoryModal
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        nextPage={nextPage}
+        previousPage={previousPage}
+        setPage={setPage}
+        setPageSize={setPageSize}
+      />
+
+      <Modal
         open={showModal}
-        title={
-          editing
-            ? "Edit Category"
-            : "Add Category"
-        }
-        initialValues={editing}
-        onSubmit={
-          editing
-            ? handleUpdate
-            : handleCreate
-        }
-        onClose={() => {
+        title=""
+        onClose={()=>{
           setEditing(null);
           setShowModal(false);
         }}
+      >
+
+        <CategoryForm
+          initialValues={editing}
+          onSubmit={save}
+          onCancel={()=>{
+            setEditing(null);
+            setShowModal(false);
+          }}
+        />
+
+      </Modal>
+
+      <CategoryDetailsDrawer
+        open={!!viewing}
+        category={viewing}
+        onClose={()=>setViewing(null)}
       />
 
       <DeleteCategoryDialog
-        open={showDelete}
-        category={selected}
-        onConfirm={handleDelete}
-        onCancel={() => {
-          setSelected(null);
-          setShowDelete(false);
-        }}
+        open={!!deleting}
+        category={deleting}
+        onCancel={()=>setDeleting(null)}
+        onConfirm={remove}
       />
 
-    </>
+    </div>
+
   );
+
 }

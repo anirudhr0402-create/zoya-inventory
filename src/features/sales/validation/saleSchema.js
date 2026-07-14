@@ -1,17 +1,73 @@
-import { z } from "zod";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc
+} from "firebase/firestore";
 
-export const saleItemSchema = z.object({
-  productId: z.string().min(1, "Product is required"),
-  quantity: z.coerce.number().positive("Quantity must be greater than zero"),
-  sellingPrice: z.coerce.number().positive("Selling price must be greater than zero"),
-  gst: z.coerce.number().min(0)
-});
+import { db } from "../../../services/firebase";
 
-export const saleSchema = z.object({
-  customerId: z.string().min(1, "Customer is required"),
-  invoiceNumber: z.string().min(1, "Invoice Number is required"),
-  invoiceDate: z.string().min(1, "Invoice Date is required"),
-  discount: z.coerce.number().min(0),
-  transportCharges: z.coerce.number().min(0),
-  remarks: z.string().optional()
-});
+const salesRef = collection(db, "sales");
+
+export async function getSales() {
+  const q = query(
+    salesRef,
+    orderBy("createdAt", "desc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map(docItem => ({
+    id: docItem.id,
+    ...docItem.data()
+  }));
+}
+
+export async function createSale(sale) {
+  const payload = {
+    ...sale,
+    quantity: Number(sale.quantity),
+    unitPrice: Number(sale.unitPrice),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+
+  const document = await addDoc(
+    salesRef,
+    payload
+  );
+
+  return {
+    id: document.id,
+    ...payload
+  };
+}
+
+export async function updateSale(
+  id,
+  sale
+) {
+  const reference = doc(
+    db,
+    "sales",
+    id
+  );
+
+  await updateDoc(reference, {
+    ...sale,
+    quantity: Number(sale.quantity),
+    unitPrice: Number(sale.unitPrice),
+    updatedAt: serverTimestamp()
+  });
+}
+
+export async function deleteSale(id) {
+  await deleteDoc(
+    doc(db, "sales", id)
+  );
+}

@@ -1,113 +1,193 @@
+import {
+  FolderTree,
+  Eye,
+  Pencil,
+  Trash2,
+  Package,
+  CircleCheck
+} from "lucide-react";
+
+import Card from "../../../components/ui/Card";
+
 export default function CategoryTable({
-  categories,
+  categories = [],
+  onView,
   onEdit,
   onDelete
 }) {
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow">
+    <Card className="overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
 
-      <table className="min-w-full">
+      <div className="overflow-x-auto">
 
-        <thead className="bg-slate-100">
+        <table className="min-w-full">
 
-          <tr>
+          <thead className="sticky top-0 bg-slate-50">
 
-            <th className="px-5 py-4 text-left">
-              Name
-            </th>
+            <tr className="border-b">
 
-            <th className="px-5 py-4 text-left">
-              Description
-            </th>
+              <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                Category
+              </th>
 
-            <th className="px-5 py-4 text-center">
-              Status
-            </th>
+              <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                Description
+              </th>
 
-            <th className="px-5 py-4 text-center">
-              Actions
-            </th>
+              <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                Status
+              </th>
 
-          </tr>
+              <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                Products
+              </th>
 
-        </thead>
-
-        <tbody>
-
-          {categories.map(category => (
-
-            <tr
-              key={category.id}
-              className="border-t"
-            >
-
-              <td className="px-5 py-4 font-medium">
-                {category.name}
-              </td>
-
-              <td className="px-5 py-4">
-                {category.description}
-              </td>
-
-              <td className="px-5 py-4 text-center">
-
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    category.status === "Active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {category.status}
-                </span>
-
-              </td>
-
-              <td className="space-x-2 px-5 py-4 text-center">
-
-                <button
-                  onClick={() =>
-                    onEdit(category)
-                  }
-                  className="rounded bg-blue-600 px-3 py-1 text-white"
-                >
-                  Edit
-                </button>
-
-                <button
-                  onClick={() =>
-                    onDelete(category)
-                  }
-                  className="rounded bg-red-600 px-3 py-1 text-white"
-                >
-                  Delete
-                </button>
-
-              </td>
+              <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                Actions
+              </th>
 
             </tr>
 
-          ))}
+          </thead>
 
-          {!categories.length && (
+          <tbody>
 
-            <tr>
+            {categories.length === 0 && (
 
-              <td
-                colSpan="4"
-                className="py-8 text-center text-slate-500"
+              <tr>
+
+                <td
+                  colSpan={5}
+                  className="py-24 text-center"
+                >
+
+                  <FolderTree
+                    size={54}
+                    className="mx-auto mb-4 text-slate-300"
+                  />
+
+                  <h2 className="text-xl font-bold text-slate-700">
+                    No Categories Found
+                  </h2>
+
+                  <p className="mt-2 text-slate-500">
+                    Create your first category.
+                  </p>
+
+                </td>
+
+              </tr>
+
+            )}
+
+            {categories.map((category, index) => (
+
+              <tr
+                key={category.id}
+                className={`transition-all hover:bg-indigo-50 ${
+                  index % 2 === 0
+                    ? "bg-white"
+                    : "bg-slate-50/40"
+                }`}
               >
-                No Categories Found
-              </td>
 
-            </tr>
+                <td className="px-6 py-5">
 
-          )}
+                  <div className="flex items-center gap-4">
 
-        </tbody>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow">
 
-      </table>
+                      <FolderTree size={22} />
 
-    </div>
+                    </div>
+
+                    <div>
+
+                      <h3 className="font-semibold text-slate-800">
+                        {category.name}
+                      </h3>
+
+                      <p className="text-sm text-slate-500">
+                        {category.code || "-"}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </td>
+
+                <td className="px-6 py-5">
+
+                  <p className="max-w-sm text-sm text-slate-600">
+                    {category.description || "-"}
+                  </p>
+
+                </td>
+
+                <td className="px-6 py-5 text-center">
+
+                  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
+
+                    <CircleCheck size={15} />
+
+                    Active
+
+                  </span>
+
+                </td>
+
+                <td className="px-6 py-5 text-center">
+
+                  <span className="inline-flex items-center gap-2 rounded-xl bg-indigo-100 px-4 py-2 font-bold text-indigo-700">
+
+                    <Package size={16} />
+
+                    {category.productCount || 0}
+
+                  </span>
+
+                </td>
+
+                <td className="px-6 py-5">
+
+                  <div className="flex justify-center gap-3">
+
+                    <button
+                      onClick={() => onView(category)}
+                      className="rounded-xl bg-slate-100 p-3 text-slate-700 transition hover:-translate-y-1 hover:bg-indigo-100 hover:text-indigo-700"
+                    >
+                      <Eye size={18} />
+                    </button>
+
+                    <button
+                      onClick={() => onEdit(category)}
+                      className="rounded-xl bg-amber-100 p-3 text-amber-700 transition hover:-translate-y-1 hover:bg-amber-200"
+                    >
+                      <Pencil size={18} />
+                    </button>
+
+                    <button
+                      onClick={() => onDelete(category)}
+                      className="rounded-xl bg-rose-100 p-3 text-rose-700 transition hover:-translate-y-1 hover:bg-rose-200"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </Card>
   );
 }

@@ -22,26 +22,62 @@ export default function InventoryPage() {
     updateInventory
   } = useInventory();
 
-  const {
-    search,
-    setSearch,
+const inventorySearch =
+  useInventorySearch(data);
+
+const search =
+  inventorySearch?.search ?? "";
+
+const setSearch =
+  inventorySearch?.setSearch ??
+  (() => {});
+
+const filteredInventory =
+  inventorySearch?.filteredInventory ??
+  [];
+
+const inventorySort =
+  useInventorySort(
     filteredInventory
-  } = useInventorySearch(data);
+  );
 
-  const {
-    sortedInventory
-  } = useInventorySort(filteredInventory);
+const sortedInventory =
+  inventorySort?.sortedInventory ??
+  [];
 
-  const {
-    page,
-    pageSize,
-    totalPages,
-    paginatedData,
-    nextPage,
-    previousPage,
-    setPage,
-    setPageSize
-  } = usePagination(sortedInventory, 5);
+  const pagination =
+  usePagination(
+    sortedInventory,
+    5
+  );
+
+const page =
+  pagination?.page ?? 1;
+
+const pageSize =
+  pagination?.pageSize ?? 5;
+
+const totalPages =
+  pagination?.totalPages ?? 1;
+
+const paginatedData =
+  pagination?.paginatedData ?? [];
+
+const nextPage =
+  pagination?.nextPage ??
+  (() => {});
+
+const previousPage =
+  pagination?.previousPage ??
+  (() => {});
+
+const setPage =
+  pagination?.setPage ??
+  (() => {});
+
+const setPageSize =
+  pagination?.setPageSize ??
+  (() => {});
 
   const [editingItem, setEditingItem] =
     useState(null);

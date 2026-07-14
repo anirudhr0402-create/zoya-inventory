@@ -1,28 +1,58 @@
 import { useMemo, useState } from "react";
 
-export default function useSaleSort(data = []) {
-  const [sortField, setSortField] = useState("invoiceNo");
-  const [sortDirection, setSortDirection] = useState("asc");
+export default function useSaleSort(
+  sales = []
+) {
+  const [sortField, setSortField] =
+    useState("saleDate");
 
-  const sortedSales = useMemo(() => {
-    const list = [...data];
+  const [sortDirection, setSortDirection] =
+    useState("desc");
 
-    list.sort((a, b) => {
-      const first = String(a[sortField]).toLowerCase();
-      const second = String(b[sortField]).toLowerCase();
+  const sortedSales =
+    useMemo(() => {
+      const data = [...sales];
 
-      return sortDirection === "asc"
-        ? first.localeCompare(second)
-        : second.localeCompare(first);
-    });
+      data.sort((a, b) => {
+        const first =
+          a[sortField] ?? "";
 
-    return list;
-  }, [data, sortField, sortDirection]);
+        const second =
+          b[sortField] ?? "";
+
+        if (
+          sortField === "quantity" ||
+          sortField === "unitPrice"
+        ) {
+          return sortDirection === "asc"
+            ? Number(first) -
+                Number(second)
+            : Number(second) -
+                Number(first);
+        }
+
+        return sortDirection === "asc"
+          ? String(first).localeCompare(
+              String(second)
+            )
+          : String(second).localeCompare(
+              String(first)
+            );
+      });
+
+      return data;
+    }, [
+      sales,
+      sortField,
+      sortDirection
+    ]);
 
   function changeSort(field) {
     if (field === sortField) {
       setSortDirection(prev =>
-        prev === "asc" ? "desc" : "asc"
+        prev === "asc"
+          ? "desc"
+          : "asc"
       );
     } else {
       setSortField(field);

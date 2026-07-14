@@ -1,159 +1,243 @@
-import ProductImage from "./ProductImage";
+import {
+  Package2,
+  Eye,
+  Pencil,
+  Trash2,
+  CircleCheck,
+  CircleX,
+  TriangleAlert,
+  Tag
+} from "lucide-react";
+
 import Card from "../../../components/ui/Card";
 
 export default function ProductTable({
-  products,
+  products = [],
   onView,
   onEdit,
   onDelete
 }) {
-  function getStatusClass(status) {
-    switch (status) {
-      case "Active":
-        return "bg-green-100 text-green-700";
 
-      case "Low Stock":
-        return "bg-yellow-100 text-yellow-700";
+  function getStatus(status) {
 
-      case "Out of Stock":
-        return "bg-red-100 text-red-700";
+    const value =
+      String(status || "ACTIVE")
+        .trim()
+        .toUpperCase();
 
-      default:
-        return "bg-gray-100 text-gray-700";
+    if (value === "ACTIVE") {
+      return {
+        text: "Active",
+        className:
+          "bg-emerald-100 text-emerald-700 border border-emerald-200",
+        icon: <CircleCheck size={15}/>
+      };
     }
+
+    return {
+      text: "Inactive",
+      className:
+        "bg-rose-100 text-rose-700 border border-rose-200",
+      icon: <CircleX size={15}/>
+    };
+
   }
 
   return (
-    <Card>
-  <div className="overflow-x-auto">
-      <table className="min-w-full table-auto">
-        <thead className="border-b bg-gray-50">
-          <tr>
-            <th className="min-w-[300px] px-6 py-4 text-left text-sm font-semibold text-gray-700">
-              Product
-            </th>
 
-            <th className="min-w-[150px] px-6 py-4 text-left text-sm font-semibold text-gray-700">
-              Category
-            </th>
+    <Card className="overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
 
-            <th className="min-w-[180px] px-6 py-4 text-left text-sm font-semibold text-gray-700">
-              Supplier
-            </th>
+      <div className="overflow-x-auto">
 
-            <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
-              Price
-            </th>
+        <table className="min-w-full">
 
-            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">
-              Stock
-            </th>
+          <thead className="sticky top-0 bg-slate-50">
 
-            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">
-              Status
-            </th>
+            <tr className="border-b">
 
-            <th className="min-w-[220px] px-6 py-4 text-center text-sm font-semibold text-gray-700">
-              Actions
-            </th>
-          </tr>
-        </thead>
+              <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                Product
+              </th>
 
-        <tbody>
-          {products.length === 0 && (
-            <tr>
-              <td
-                colSpan={7}
-                className="py-10 text-center text-gray-500"
-              >
-                No products found.
-              </td>
+              <th className="px-6 py-5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                Category
+              </th>
+
+              <th className="px-6 py-5 text-right text-xs font-bold uppercase tracking-wider text-slate-500">
+                Selling Price
+              </th>
+
+              <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                Status
+              </th>
+
+              <th className="px-6 py-5 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                Actions
+              </th>
+
             </tr>
-          )}
 
-          {products.map((product) => (
-            <tr
-              key={product.id}
-              className="border-b transition hover:bg-gray-50"
-            >
-              {/* Product */}
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-4">
-                  <ProductImage name={product.name} />
+          </thead>
 
-                  <div>
-                    <h3 className="font-semibold text-gray-800">
-                      {product.name}
-                    </h3>
+          <tbody>
 
-                    <p className="mt-1 text-sm text-gray-500">
-                      {product.code}
-                    </p>
-                  </div>
-                </div>
-              </td>
+            {products.length === 0 && (
 
-              {/* Category */}
-              <td className="px-6 py-4">
-                {product.category}
-              </td>
+              <tr>
 
-              {/* Supplier */}
-              <td className="px-6 py-4">
-                {product.supplier}
-              </td>
-
-              {/* Price */}
-              <td className="px-6 py-4 text-right font-medium">
-                INR {Number(product.price).toFixed(2)}
-              </td>
-
-              {/* Stock */}
-              <td className="px-6 py-4 text-center font-medium">
-                {product.stock}
-              </td>
-
-              {/* Status */}
-              <td className="px-6 py-4 text-center">
-                <span
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
-                    product.status
-                  )}`}
+                <td
+                  colSpan={5}
+                  className="py-24 text-center"
                 >
-                  {product.status}
-                </span>
-              </td>
 
-              {/* Actions */}
-              <td className="px-6 py-4">
-                <div className="flex items-center justify-center gap-2 whitespace-nowrap">
-                  <button
-                    onClick={() => onView(product)}
-                    className="rounded-lg bg-slate-700 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-                  >
-                    View
-                  </button>
+                  <Package2
+                    size={54}
+                    className="mx-auto mb-4 text-slate-300"
+                  />
 
-                  <button
-                    onClick={() => onEdit(product)}
-                    className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-amber-600"
-                  >
-                    Edit
-                  </button>
+                  <h2 className="text-xl font-bold text-slate-700">
+                    No Products Found
+                  </h2>
 
-                  <button
-                    onClick={() => onDelete(product)}
-                    className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-     </div>
-</Card>
+                  <p className="mt-2 text-slate-500">
+                    Create your first product.
+                  </p>
+
+                </td>
+
+              </tr>
+
+            )}
+
+            {products.map((product,index)=>{
+
+              const status =
+                getStatus(product.status);
+
+              return(
+
+                <tr
+                  key={product.id}
+                  className={`transition-all hover:bg-indigo-50 ${
+                    index%2===0
+                      ? "bg-white"
+                      : "bg-slate-50/40"
+                  }`}
+                >
+
+                  <td className="px-6 py-5">
+
+                    <div className="flex items-center gap-4">
+
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow">
+
+                        <Package2 size={22}/>
+
+                      </div>
+
+                      <div>
+
+                        <h3 className="font-semibold text-slate-800">
+                          {product.name}
+                        </h3>
+
+                        <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+
+                          <Tag size={14}/>
+
+                          {product.code}
+
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  </td>
+
+                  <td className="px-6 py-5">
+
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+                      {product.category}
+                    </span>
+
+                  </td>
+
+                  <td className="px-6 py-5 text-right">
+
+                    <span className="text-lg font-bold text-emerald-600">
+
+                      ₹{" "}
+                      {Number(
+                        product.price||0
+                      ).toLocaleString(
+                        "en-IN",
+                        {
+                          minimumFractionDigits:2
+                        }
+                      )}
+
+                    </span>
+
+                  </td>
+
+                  <td className="px-6 py-5 text-center">
+
+                    <span
+                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${status.className}`}
+                    >
+
+                      {status.icon}
+
+                      {status.text}
+
+                    </span>
+
+                  </td>
+
+                  <td className="px-6 py-5">
+
+                    <div className="flex justify-center gap-3">
+
+                      <button
+                        onClick={()=>onView(product)}
+                        className="rounded-xl bg-slate-100 p-3 text-slate-700 transition hover:-translate-y-1 hover:bg-indigo-100 hover:text-indigo-700"
+                      >
+                        <Eye size={18}/>
+                      </button>
+
+                      <button
+                        onClick={()=>onEdit(product)}
+                        className="rounded-xl bg-amber-100 p-3 text-amber-700 transition hover:-translate-y-1 hover:bg-amber-200"
+                      >
+                        <Pencil size={18}/>
+                      </button>
+
+                      <button
+                        onClick={()=>onDelete(product)}
+                        className="rounded-xl bg-rose-100 p-3 text-rose-700 transition hover:-translate-y-1 hover:bg-rose-200"
+                      >
+                        <Trash2 size={18}/>
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              );
+
+            })}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </Card>
+
   );
+
 }

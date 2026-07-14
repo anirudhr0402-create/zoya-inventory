@@ -1,179 +1,102 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import {
+  Users,
+  Sparkles,
+  Plus
+} from "lucide-react";
 
 import PageHeader from "../../../components/ui/PageHeader";
+import Modal from "../../../components/ui/Modal";
 
-import DataTable from "../../../components/common/DataTable";
-import SearchToolbar from "../../../components/common/SearchToolbar";
-import ConfirmDeleteDialog from "../../../components/common/ConfirmDeleteDialog";
-import Pagination from "../../products/components/Pagination";
-
-import usePagination from "../../products/hooks/usePagination";
 import useCustomers from "../hooks/useCustomers";
+import useCustomerSearch from "../hooks/useCustomerSearch";
+import usePagination from "../../products/hooks/usePagination";
 
-import { customerColumns } from "../constants/customerColumns";
-
-import CustomerStats from "../components/CustomerStats";
-import CustomerModal from "../components/CustomerModal";
-import CustomerDetails from "../components/CustomerDetails";
+import CustomerToolbar from "../components/CustomerToolbar";
+import CustomerTable from "../components/CustomerTable";
+import CustomerForm from "../components/CustomerForm";
+import CustomerDetailsDrawer from "../components/CustomerDetailsDrawer";
+import DeleteCustomerDialog from "../components/DeleteCustomerDialog";
+import Pagination from "../../products/components/Pagination";
 
 export default function CustomersPage() {
 
   const {
-    data = [],
-    isLoading,
+    data: customers = [],
     addCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    isLoading
   } = useCustomers();
 
-  const [search, setSearch] = useState("");
-
-  const [editingCustomer, setEditingCustomer] =
-    useState(null);
-
-  const [selectedCustomer, setSelectedCustomer] =
-    useState(null);
-
-  const [viewCustomer, setViewCustomer] =
-    useState(null);
-
-  const [showModal, setShowModal] =
-    useState(false);
-
-  const [showDelete, setShowDelete] =
-    useState(false);
-
-  const [showDetails, setShowDetails] =
-    useState(false);
-
-  const filteredCustomers = useMemo(() => {
-
-    const keyword = search.toLowerCase();
-
-    return [...data]
-      .sort((a, b) =>
-        a.name.localeCompare(b.name)
-      )
-      .filter(customer => {
-
-        return (
-
-          customer.name
-            ?.toLowerCase()
-            .includes(keyword)
-
-          ||
-
-          customer.phone
-            ?.includes(keyword)
-
-          ||
-
-          customer.city
-            ?.toLowerCase()
-            .includes(keyword)
-
-          ||
-
-          customer.customerType
-            ?.toLowerCase()
-            .includes(keyword)
-
-        );
-
-      });
-
-  }, [data, search]);
+  const {
+    search,
+    setSearch,
+    filteredCustomers
+  } = useCustomerSearch(customers);
 
   const {
-
     page,
-
     pageSize,
-
     totalPages,
-
     paginatedData,
-
     nextPage,
-
     previousPage,
-
     setPage,
-
     setPageSize
-
   } = usePagination(filteredCustomers, 10);
 
-  async function handleCreate(values) {
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [viewing, setViewing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
+
+  async function save(values) {
 
     try {
 
-      await addCustomer(values);
+      if (editing) {
 
-      toast.success(
-        "Customer added successfully."
-      );
+        await updateCustomer({
+          ...editing,
+          ...values
+        });
 
+        toast.success("Customer updated successfully.");
+
+      } else {
+
+        await addCustomer(values);
+
+        toast.success("Customer created successfully.");
+
+      }
+
+      setEditing(null);
       setShowModal(false);
 
     } catch {
 
-      toast.error(
-        "Unable to add customer."
-      );
+      toast.error("Unable to save customer.");
 
     }
 
   }
 
-  async function handleUpdate(values) {
+  async function remove() {
 
     try {
 
-      await updateCustomer({
-        ...editingCustomer,
-        ...values
-      });
+      await deleteCustomer(deleting.id);
 
-      toast.success(
-        "Customer updated successfully."
-      );
+      toast.success("Customer deleted successfully.");
 
-      setEditingCustomer(null);
-
-      setShowModal(false);
+      setDeleting(null);
 
     } catch {
 
-      toast.error(
-        "Unable to update customer."
-      );
-
-    }
-
-  }
-
-  async function handleDelete() {
-
-    try {
-
-      await deleteCustomer(selectedCustomer.id);
-
-      toast.success(
-        "Customer deleted."
-      );
-
-      setSelectedCustomer(null);
-
-      setShowDelete(false);
-
-    } catch {
-
-      toast.error(
-        "Unable to delete customer."
-      );
+      toast.error("Unable to delete customer.");
 
     }
 
@@ -182,176 +105,144 @@ export default function CustomersPage() {
   if (isLoading) {
 
     return (
-      <div className="p-6">
-        Loading Customers...
+      <div className="space-y-8">
+
+        <PageHeader
+          title="Customers"
+          subtitle="Loading..."
+        />
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+          {[1,2,3,4].map(item=>(
+            <div
+              key={item}
+              className="h-40 animate-pulse rounded-3xl bg-white shadow-sm"
+            />
+          ))}
+
+        </div>
+
       </div>
     );
 
   }
 
   return (
-    <>
+
+    <div className="space-y-8">
 
       <PageHeader
-        title="Customer Management"
-        subtitle="Manage retail and wholesale customers."
+        title="Customers"
+        subtitle="Manage customer master."
       />
 
-      <CustomerStats
-        customers={data}
-      />
+      <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-white shadow-xl">
 
-      <SearchToolbar
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
+          <div>
+
+            <div className="flex items-center gap-3">
+
+              <Users size={32} />
+
+              <h2 className="text-3xl font-bold">
+                Customer Management
+              </h2>
+
+              <Sparkles size={20} />
+
+            </div>
+
+            <p className="mt-3 text-indigo-100">
+              Manage customers, contact information and sales history.
+            </p>
+
+          </div>
+
+          <button
+            onClick={()=>{
+              setEditing(null);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 rounded-2xl bg-white px-7 py-4 font-semibold text-indigo-700 shadow-lg transition hover:-translate-y-1"
+          >
+
+            <Plus size={20} />
+
+            Add Customer
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <CustomerToolbar
         search={search}
         onSearch={setSearch}
-        buttonText="+ New Customer"
-        onAdd={() => {
-
-          setEditingCustomer(null);
-
+        onAdd={()=>{
+          setEditing(null);
           setShowModal(true);
-
         }}
       />
 
-      <DataTable
-
-        columns={customerColumns}
-
-        data={paginatedData}
-
-        actions={(customer) => (
-
-          <>
-
-            <button
-              onClick={() => {
-
-                setViewCustomer(customer);
-
-                setShowDetails(true);
-
-              }}
-              className="rounded bg-slate-600 px-3 py-1 text-white"
-            >
-              View
-            </button>
-
-            <button
-              onClick={() => {
-
-                setEditingCustomer(customer);
-
-                setShowModal(true);
-
-              }}
-              className="rounded bg-blue-600 px-3 py-1 text-white"
-            >
-              Edit
-            </button>
-
-            <button
-              onClick={() => {
-
-                setSelectedCustomer(customer);
-
-                setShowDelete(true);
-
-              }}
-              className="rounded bg-red-600 px-3 py-1 text-white"
-            >
-              Delete
-            </button>
-
-          </>
-
-        )}
-
+      <CustomerTable
+        customers={paginatedData}
+        onView={setViewing}
+        onEdit={(customer)=>{
+          setEditing(customer);
+          setShowModal(true);
+        }}
+        onDelete={setDeleting}
       />
 
       <Pagination
-
         page={page}
-
         pageSize={pageSize}
-
         totalPages={totalPages}
-
         nextPage={nextPage}
-
         previousPage={previousPage}
-
         setPage={setPage}
-
         setPageSize={setPageSize}
-
       />
 
-      <CustomerModal
-
+      <Modal
         open={showModal}
-
-        title={
-          editingCustomer
-            ? "Edit Customer"
-            : "New Customer"
-        }
-
-        initialValues={editingCustomer}
-
-        onSubmit={
-          editingCustomer
-            ? handleUpdate
-            : handleCreate
-        }
-
-        onClose={() => {
-
-          setEditingCustomer(null);
-
+        title=""
+        onClose={()=>{
+          setEditing(null);
           setShowModal(false);
-
         }}
+      >
 
+        <CustomerForm
+          initialValues={editing}
+          onSubmit={save}
+          onCancel={()=>{
+            setEditing(null);
+            setShowModal(false);
+          }}
+        />
+
+      </Modal>
+
+      <CustomerDetailsDrawer
+        open={!!viewing}
+        customer={viewing}
+        onClose={()=>setViewing(null)}
       />
 
-      <CustomerDetails
-
-        open={showDetails}
-
-        customer={viewCustomer}
-
-        onClose={() => {
-
-          setViewCustomer(null);
-
-          setShowDetails(false);
-
-        }}
-
+      <DeleteCustomerDialog
+        open={!!deleting}
+        customer={deleting}
+        onCancel={()=>setDeleting(null)}
+        onConfirm={remove}
       />
 
-      <ConfirmDeleteDialog
+    </div>
 
-        open={showDelete}
-
-        title="Delete Customer"
-
-        name={selectedCustomer?.name}
-
-        onConfirm={handleDelete}
-
-        onCancel={() => {
-
-          setSelectedCustomer(null);
-
-          setShowDelete(false);
-
-        }}
-
-      />
-
-    </>
   );
 
 }

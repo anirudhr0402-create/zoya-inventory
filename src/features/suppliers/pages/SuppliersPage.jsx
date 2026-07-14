@@ -1,15 +1,21 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import {
+  Truck,
+  Sparkles,
+  Plus
+} from "lucide-react";
 
 import PageHeader from "../../../components/ui/PageHeader";
+import Modal from "../../../components/ui/Modal";
 
 import useSuppliers from "../hooks/useSuppliers";
+import useSupplierSearch from "../hooks/useSupplierSearch";
 import usePagination from "../../products/hooks/usePagination";
 
-import SupplierStats from "../components/SupplierStats";
 import SupplierToolbar from "../components/SupplierToolbar";
 import SupplierTable from "../components/SupplierTable";
-import SupplierModal from "../components/SupplierModal";
+import SupplierForm from "../components/SupplierForm";
 import SupplierDetailsDrawer from "../components/SupplierDetailsDrawer";
 import DeleteSupplierDialog from "../components/DeleteSupplierDialog";
 import Pagination from "../../products/components/Pagination";
@@ -17,73 +23,18 @@ import Pagination from "../../products/components/Pagination";
 export default function SuppliersPage() {
 
   const {
-    data = [],
-    isLoading,
+    data: suppliers = [],
     addSupplier,
     updateSupplier,
-    deleteSupplier
+    deleteSupplier,
+    isLoading
   } = useSuppliers();
 
-  const [search, setSearch] = useState("");
-
-  const [editingSupplier, setEditingSupplier] =
-    useState(null);
-
-  const [viewSupplier, setViewSupplier] =
-    useState(null);
-
-  const [selectedSupplier, setSelectedSupplier] =
-    useState(null);
-
-  const [showModal, setShowModal] =
-    useState(false);
-
-  const [showDrawer, setShowDrawer] =
-    useState(false);
-
-  const [showDelete, setShowDelete] =
-    useState(false);
-
-  const filteredSuppliers = useMemo(() => {
-
-  return [...data]
-
-    .sort((a, b) =>
-      a.name.localeCompare(b.name)
-    )
-
-    .filter((supplier) => {
-
-      const keyword = search.toLowerCase();
-
-      return (
-
-        supplier.name
-          ?.toLowerCase()
-          .includes(keyword)
-
-        ||
-
-        supplier.contactPerson
-          ?.toLowerCase()
-          .includes(keyword)
-
-        ||
-
-        supplier.phone
-          ?.includes(keyword)
-
-        ||
-
-        supplier.gstNumber
-          ?.toLowerCase()
-          .includes(keyword)
-
-      );
-
-    });
-
-}, [data, search]);
+  const {
+    search,
+    setSearch,
+    filteredSuppliers
+  } = useSupplierSearch(suppliers);
 
   const {
     page,
@@ -96,62 +47,68 @@ export default function SuppliersPage() {
     setPageSize
   } = usePagination(filteredSuppliers, 10);
 
-  async function handleCreate(values) {
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [viewing, setViewing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
+
+  async function save(values) {
 
     try {
 
-      await addSupplier(values);
+      if (editing) {
 
-      toast.success("Supplier added successfully.");
+        await updateSupplier({
+          ...editing,
+          ...values
+        });
 
+        toast.success(
+          "Supplier updated successfully."
+        );
+
+      } else {
+
+        await addSupplier(values);
+
+        toast.success(
+          "Supplier created successfully."
+        );
+
+      }
+
+      setEditing(null);
       setShowModal(false);
 
     } catch {
 
-      toast.error("Unable to add supplier.");
+      toast.error(
+        "Unable to save supplier."
+      );
 
     }
 
   }
 
-  async function handleUpdate(values) {
+  async function remove() {
 
     try {
 
-      await updateSupplier({
-        ...editingSupplier,
-        ...values
-      });
+      await deleteSupplier(
+        deleting.id
+      );
 
-      toast.success("Supplier updated successfully.");
+      toast.success(
+        "Supplier deleted successfully."
+      );
 
-      setEditingSupplier(null);
-
-      setShowModal(false);
-
-    } catch {
-
-      toast.error("Unable to update supplier.");
-
-    }
-
-  }
-
-  async function handleDelete() {
-
-    try {
-
-      await deleteSupplier(selectedSupplier.id);
-
-      toast.success("Supplier deleted.");
-
-      setSelectedSupplier(null);
-
-      setShowDelete(false);
+      setDeleting(null);
 
     } catch {
 
-      toast.error("Unable to delete supplier.");
+      toast.error(
+        "Unable to delete supplier."
+      );
 
     }
 
@@ -160,59 +117,99 @@ export default function SuppliersPage() {
   if (isLoading) {
 
     return (
-      <div className="p-6">
-        Loading Suppliers...
+
+      <div className="space-y-8">
+
+        <PageHeader
+          title="Suppliers"
+          subtitle="Loading..."
+        />
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+          {[1,2,3,4].map(item=>(
+            <div
+              key={item}
+              className="h-40 animate-pulse rounded-3xl bg-white shadow-sm"
+            />
+          ))}
+
+        </div>
+
       </div>
+
     );
 
   }
 
   return (
-    <>
+
+    <div className="space-y-8">
 
       <PageHeader
-    title="Supplier Management"
-    subtitle="Manage vendors supplying products to AIMS."
-/>
-      <SupplierStats
-        suppliers={data}
+        title="Suppliers"
+        subtitle="Manage supplier master."
       />
+
+      <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-white shadow-xl">
+
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
+          <div>
+
+            <div className="flex items-center gap-3">
+
+              <Truck size={32}/>
+
+              <h2 className="text-3xl font-bold">
+                Supplier Management
+              </h2>
+
+              <Sparkles size={20}/>
+
+            </div>
+
+            <p className="mt-3 text-indigo-100">
+              Manage suppliers, contacts and business information.
+            </p>
+
+          </div>
+
+          <button
+            onClick={()=>{
+              setEditing(null);
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 rounded-2xl bg-white px-7 py-4 font-semibold text-indigo-700 shadow-lg transition hover:-translate-y-1"
+          >
+
+            <Plus size={20}/>
+
+            Add Supplier
+
+          </button>
+
+        </div>
+
+      </div>
 
       <SupplierToolbar
         search={search}
         onSearch={setSearch}
-        onAdd={() => {
-
-          setEditingSupplier(null);
-
+        onAdd={()=>{
+          setEditing(null);
           setShowModal(true);
-
         }}
       />
 
       <SupplierTable
         suppliers={paginatedData}
-        onView={(supplier) => {
-
-          setViewSupplier(supplier);
-
-          setShowDrawer(true);
-
-        }}
-        onEdit={(supplier) => {
-
-          setEditingSupplier(supplier);
-
+        onView={setViewing}
+        onEdit={(supplier)=>{
+          setEditing(supplier);
           setShowModal(true);
-
         }}
-        onDelete={(supplier) => {
-
-          setSelectedSupplier(supplier);
-
-          setShowDelete(true);
-
-        }}
+        onDelete={setDeleting}
       />
 
       <Pagination
@@ -225,54 +222,41 @@ export default function SuppliersPage() {
         setPageSize={setPageSize}
       />
 
-      <SupplierModal
+      <Modal
         open={showModal}
-        title={
-          editingSupplier
-            ? "Edit Supplier"
-            : "+ New Supplier"
-        }
-        initialValues={editingSupplier}
-        onSubmit={
-          editingSupplier
-            ? handleUpdate
-            : handleCreate
-        }
-        onClose={() => {
-
-          setEditingSupplier(null);
-
+        title=""
+        onClose={()=>{
+          setEditing(null);
           setShowModal(false);
-
         }}
-      />
+      >
+
+        <SupplierForm
+          initialValues={editing}
+          onSubmit={save}
+          onCancel={()=>{
+            setEditing(null);
+            setShowModal(false);
+          }}
+        />
+
+      </Modal>
 
       <SupplierDetailsDrawer
-        open={showDrawer}
-        supplier={viewSupplier}
-        onClose={() => {
-
-          setViewSupplier(null);
-
-          setShowDrawer(false);
-
-        }}
+        open={!!viewing}
+        supplier={viewing}
+        onClose={()=>setViewing(null)}
       />
 
       <DeleteSupplierDialog
-        open={showDelete}
-        supplier={selectedSupplier}
-        onConfirm={handleDelete}
-        onCancel={() => {
-
-          setSelectedSupplier(null);
-
-          setShowDelete(false);
-
-        }}
+        open={!!deleting}
+        supplier={deleting}
+        onCancel={()=>setDeleting(null)}
+        onConfirm={remove}
       />
 
-    </>
+    </div>
+
   );
 
-} 
+}

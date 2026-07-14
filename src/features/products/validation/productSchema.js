@@ -17,7 +17,10 @@ export const productSchema = z.object({
     .number()
     .positive("Price must be greater than zero"),
 
-  stock: z.coerce
-    .number()
-    .min(0, "Stock cannot be negative")
+  status: z.enum(
+    ["ACTIVE", "INACTIVE"],
+    {
+      required_error: "Status is required"
+    }
+  )
 });
