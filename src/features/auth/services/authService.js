@@ -1,63 +1,50 @@
-const USERS = [
-  {
-    id: 1,
-    username: "admin",
-    password: "admin123",
-    role: "ADMIN",
-    name: "Administrator"
-  },
-  {
-    id: 2,
-    username: "manager",
-    password: "manager123",
-    role: "MANAGER",
-    name: "Store Manager"
-  },
-  {
-    id: 3,
-    username: "staff",
-    password: "staff123",
-    role: "STAFF",
-    name: "Store Staff"
-  }
-];
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  setPersistence,
+  onAuthStateChanged
+} from "firebase/auth";
 
-const STORAGE_KEY = "aims-user";
+const auth = getAuth();
 
-export async function login(username, password) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const user = USERS.find(
-    (u) => u.username === username && u.password === password
+export async function login({
+  email,
+  password,
+  remember = true
+}) {
+  await setPersistence(
+    auth,
+    remember
+      ? browserLocalPersistence
+      : browserSessionPersistence
   );
 
-  if (!user) {
-    throw new Error("Invalid username or password.");
-  }
+  const credential =
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
-  const loggedInUser = {
-    id: user.id,
-    username: user.username,
-    role: user.role,
-    name: user.name,
-    token: "mock-jwt-token"
-  };
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(loggedInUser));
-
-  return loggedInUser;
+  return credential.user;
 }
 
-export function logout() {
-  localStorage.removeItem(STORAGE_KEY);
+export async function logout() {
+  await signOut(auth);
 }
 
 export function getCurrentUser() {
-  const user = localStorage.getItem(STORAGE_KEY);
-
-  return user ? JSON.parse(user) : null;
+  return auth.currentUser;
 }
 
-export function isAuthenticated() {
-  return getCurrentUser() !== null;
+export function subscribeAuth(callback) {
+  return onAuthStateChanged(
+    auth,
+    callback
+  );
 }
+
+export { auth };

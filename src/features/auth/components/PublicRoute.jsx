@@ -6,7 +6,7 @@
 //   subscribeAuth
 // } from "../services/authService";
 
-// export default function ProtectedRoute({
+// export default function PublicRoute({
 //   children
 // }) {
 //   const [loading, setLoading] =
@@ -43,10 +43,10 @@
 //     );
 //   }
 
-//   if (!user) {
+//   if (user) {
 //     return (
 //       <Navigate
-//         to="/login"
+//         to="/dashboard"
 //         replace
 //       />
 //     );
@@ -57,17 +57,17 @@
 
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({
+export default function PublicRoute({
   children
 }) {
   const loggedIn =
     localStorage.getItem("aims_auth") ===
     "true";
 
-  if (!loggedIn) {
+  if (loggedIn) {
     return (
       <Navigate
-        to="/login"
+        to="/dashboard"
         replace
       />
     );

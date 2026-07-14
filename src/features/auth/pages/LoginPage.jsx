@@ -1,94 +1,86 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import BackgroundAnimation from "../components/BackgroundAnimation";
+import FloatingStats from "../components/FloatingStats";
+import MouseGlow from "../components/MouseGlow";
+import AuthLogo from "../components/AuthLogo";
+import LoginForm from "../components/LoginForm";
+import AuthFooter from "../components/AuthFooter";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { signIn, isAuthenticated } = useAuth();
-
-  const from = location.state?.from?.pathname || "/dashboard";
-
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  if (isAuthenticated) {
-    navigate(from, { replace: true });
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-
-    try {
-      setError("");
-
-      await signIn(username, password);
-
-      navigate(from, {
-        replace: true
-      });
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg"
-      >
-        <h1 className="mb-2 text-3xl font-bold">
-          AIMS
-        </h1>
+    <div className="relative min-h-screen overflow-hidden bg-slate-950">
 
-        <p className="mb-6 text-gray-500">
-          Inventory Management System
-        </p>
+      <BackgroundAnimation />
 
-        {error && (
-          <div className="mb-4 rounded bg-red-100 p-3 text-red-600">
-            {error}
+      <MouseGlow />
+
+      <div className="relative z-10 flex min-h-screen">
+
+        {/* LEFT PANEL */}
+
+        <div className="hidden w-1/2 flex-col justify-between p-16 lg:flex">
+
+          <div>
+
+            <AuthLogo />
+
+            <div className="mt-16">
+
+              <span className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-5 py-2 text-sm font-semibold text-indigo-300 backdrop-blur-xl">
+
+                Enterprise Inventory Platform
+
+              </span>
+
+              <h1 className="mt-8 text-6xl font-black leading-tight text-white">
+
+                Manage
+
+                <br />
+
+                Inventory
+
+                <br />
+
+                Like Never
+
+                <br />
+
+                Before.
+
+              </h1>
+
+              <p className="mt-8 max-w-xl text-xl leading-9 text-slate-300">
+
+                One platform to manage inventory,
+                suppliers, customers, purchases,
+                sales, reports and analytics.
+
+              </p>
+
+            </div>
+
           </div>
-        )}
 
-        <div className="mb-4">
-          <label className="mb-2 block">
-            Username
-          </label>
+          <FloatingStats />
 
-          <input
-            className="w-full rounded border p-3"
-            value={username}
-            onChange={(e) =>
-              setUsername(e.target.value)
-            }
-          />
         </div>
 
-        <div className="mb-6">
-          <label className="mb-2 block">
-            Password
-          </label>
+        {/* RIGHT PANEL */}
 
-          <input
-            type="password"
-            className="w-full rounded border p-3"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-          />
+        <div className="flex flex-1 items-center justify-center p-8 lg:p-16">
+
+          <div className="w-full max-w-lg">
+
+            <LoginForm />
+
+            <AuthFooter />
+
+          </div>
+
         </div>
 
-        <button
-          type="submit"
-          className="w-full rounded bg-blue-600 p-3 text-white"
-        >
-          Login
-        </button>
-      </form>
+      </div>
+
     </div>
   );
 }
