@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { saleSchema } from "../validation/saleSchema";
+
 import useProducts from "../../products/hooks/useProducts";
 import useCustomers from "../../customers/hooks/useCustomers";
 
@@ -33,6 +34,7 @@ export default function SaleForm({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: {
       errors,
       isSubmitting
@@ -42,7 +44,7 @@ export default function SaleForm({
     defaultValues: {
       productId: "",
       customer: "",
-      quantity: "",
+      quantity: 1,
       unitPrice: "",
       saleDate: new Date()
         .toISOString()
@@ -57,7 +59,7 @@ export default function SaleForm({
       initialValues || {
         productId: "",
         customer: "",
-        quantity: "",
+        quantity: 1,
         unitPrice: "",
         saleDate: new Date()
           .toISOString()
@@ -68,6 +70,16 @@ export default function SaleForm({
     );
   }, [initialValues, reset]);
 
+  const selectedProductId =
+    watch("productId");
+
+  const selectedProduct =
+    products.find(
+      product =>
+        product.id ===
+        selectedProductId
+    );
+
   const inputClass = error =>
     `w-full rounded-2xl border px-5 py-4 outline-none transition duration-300 focus:ring-4 focus:ring-indigo-100 ${
       error
@@ -75,16 +87,43 @@ export default function SaleForm({
         : "border-slate-200"
     }`;
 
+  function submit(values) {
+    onSubmit({
+      ...values,
+
+      productName:
+        selectedProduct?.productName ??
+        selectedProduct?.name ??
+        "",
+
+      productCode:
+        selectedProduct?.productCode ??
+        "",
+
+      category:
+        selectedProduct?.category ??
+        "",
+
+      quantity: Number(
+        values.quantity
+      ),
+
+      unitPrice: Number(
+        values.unitPrice
+      )
+    });
+  }
+
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(submit)}
       className="space-y-7"
     >
       <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-white shadow-xl">
 
         <div className="flex items-center gap-5">
 
-          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 backdrop-blur">
+          <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20">
 
             <ShoppingBag size={38} />
 
@@ -107,7 +146,7 @@ export default function SaleForm({
             </div>
 
             <p className="mt-2 text-indigo-100">
-              Record customer sales professionally.
+              Record customer sales.
             </p>
 
           </div>
@@ -132,20 +171,26 @@ export default function SaleForm({
 
             <select
               {...register("productId")}
-              className={inputClass(errors.productId)}
+              className={inputClass(
+                errors.productId
+              )}
             >
+
               <option value="">
                 Select Product
               </option>
 
-              {products.map(product => (
-                <option
-                  key={product.id}
-                  value={product.id}
-                >
-                  {product.name}
-                </option>
-              ))}
+              {products.map(
+                product => (
+                  <option
+                    key={product.id}
+                    value={product.id}
+                  >
+                    {product.productName ??
+                      product.name}
+                  </option>
+                )
+              )}
 
             </select>
 
@@ -163,20 +208,29 @@ export default function SaleForm({
 
             <select
               {...register("customer")}
-              className={inputClass(errors.customer)}
+              className={inputClass(
+                errors.customer
+              )}
             >
+
               <option value="">
                 Select Customer
               </option>
 
-              {customers.map(customer => (
-                <option
-                  key={customer.id}
-                  value={customer.name}
-                >
-                  {customer.name}
-                </option>
-              ))}
+              {customers.map(
+                customer => (
+                  <option
+                    key={customer.id}
+                    value={
+                      customer.customerName ??
+                      customer.name
+                    }
+                  >
+                    {customer.customerName ??
+                      customer.name}
+                  </option>
+                )
+              )}
 
             </select>
 
@@ -195,7 +249,9 @@ export default function SaleForm({
             <input
               type="number"
               {...register("quantity")}
-              className={inputClass(errors.quantity)}
+              className={inputClass(
+                errors.quantity
+              )}
             />
 
           </div>
@@ -213,8 +269,12 @@ export default function SaleForm({
             <input
               type="number"
               step="0.01"
-              {...register("unitPrice")}
-              className={inputClass(errors.unitPrice)}
+              {...register(
+                "unitPrice"
+              )}
+              className={inputClass(
+                errors.unitPrice
+              )}
             />
 
           </div>
@@ -231,8 +291,12 @@ export default function SaleForm({
 
             <input
               type="date"
-              {...register("saleDate")}
-              className={inputClass(errors.saleDate)}
+              {...register(
+                "saleDate"
+              )}
+              className={inputClass(
+                errors.saleDate
+              )}
             />
 
           </div>
@@ -248,8 +312,12 @@ export default function SaleForm({
             </label>
 
             <input
-              {...register("invoiceNumber")}
-              className={inputClass(errors.invoiceNumber)}
+              {...register(
+                "invoiceNumber"
+              )}
+              className={inputClass(
+                errors.invoiceNumber
+              )}
             />
 
           </div>
@@ -269,7 +337,9 @@ export default function SaleForm({
           <textarea
             rows={4}
             {...register("remarks")}
-            className={inputClass(errors.remarks)}
+            className={inputClass(
+              errors.remarks
+            )}
           />
 
         </div>
@@ -283,19 +353,25 @@ export default function SaleForm({
           onClick={onCancel}
           className="flex items-center gap-2 rounded-2xl border border-slate-300 px-6 py-3 font-semibold hover:bg-slate-100"
         >
+
           <X size={18} />
+
           Cancel
+
         </button>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:shadow-indigo-300"
+          className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-3 font-semibold text-white shadow-lg hover:-translate-y-1"
         >
+
           <Save size={18} />
+
           {isSubmitting
             ? "Saving..."
             : "Save Sale"}
+
         </button>
 
       </div>

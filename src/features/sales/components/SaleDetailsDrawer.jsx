@@ -1,39 +1,48 @@
 import {
-  ShoppingBag,
-  Package,
-  Users,
-  Hash,
-  IndianRupee,
   CalendarDays,
   FileText,
-  Sparkles
+  IndianRupee,
+  Package,
+  ShoppingBag,
+  User,
+  Hash,
+  MessageSquare,
+  X
 } from "lucide-react";
 
 import Drawer from "../../../components/ui/Drawer";
 
-function DetailCard({
-  icon,
+function DetailRow({
+  icon: Icon,
   label,
-  value,
-  color = "text-slate-700"
+  value
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-indigo-200 hover:bg-indigo-50">
+    <div className="flex items-start gap-4 rounded-2xl bg-slate-50 p-4">
 
-      <div className="mb-3 flex items-center gap-3">
+      <div className="rounded-xl bg-indigo-100 p-3">
 
-        <div className="rounded-xl bg-white p-3 shadow-sm">
-          {icon}
-        </div>
-
-        <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
-          {label}
-        </span>
+        <Icon
+          size={18}
+          className="text-indigo-600"
+        />
 
       </div>
 
-      <div className={`text-lg font-bold ${color}`}>
-        {value || "-"}
+      <div className="flex-1">
+
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+
+          {label}
+
+        </p>
+
+        <p className="mt-1 text-base font-semibold text-slate-800">
+
+          {value || "-"}
+
+        </p>
+
       </div>
 
     </div>
@@ -41,115 +50,132 @@ function DetailCard({
 }
 
 export default function SaleDetailsDrawer({
-  sale,
   open,
+  sale,
   onClose
 }) {
-  if (!sale) return null;
+  if (!open || !sale) return null;
+
+  const quantity = Number(
+    sale.quantity || 0
+  );
+
+  const unitPrice = Number(
+    sale.unitPrice || 0
+  );
 
   const total =
-    Number(sale.quantity || 0) *
-    Number(sale.unitPrice || 0);
+    quantity * unitPrice;
 
   return (
     <Drawer
       open={open}
       onClose={onClose}
       title=""
-      width="max-w-2xl"
     >
+
       <div className="space-y-6">
 
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-white shadow-xl">
+        <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 text-white">
 
-          <div className="flex items-center gap-5">
-
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 backdrop-blur">
-
-              <ShoppingBag size={38} />
-
-            </div>
+          <div className="flex items-center justify-between">
 
             <div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+
+                <ShoppingBag size={34} />
 
                 <h2 className="text-3xl font-bold">
-                  Sale Details
-                </h2>
 
-                <Sparkles size={18} />
+                  Sale Details
+
+                </h2>
 
               </div>
 
-              <p className="mt-2 text-indigo-100">
-                Complete sales information.
+              <p className="mt-3 text-indigo-100">
+
+                Invoice
+
+                {" "}
+
+                {sale.invoiceNumber || "-"}
+
               </p>
 
             </div>
+
+            <button
+              onClick={onClose}
+              className="rounded-2xl bg-white/20 p-3"
+            >
+
+              <X size={22} />
+
+            </button>
 
           </div>
 
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <DetailRow
+          icon={Package}
+          label="Product"
+          value={sale.productName}
+        />
 
-          <DetailCard
-            icon={<Package size={20} className="text-indigo-600" />}
-            label="Product"
-            value={sale.productName}
-          />
+        <DetailRow
+          icon={User}
+          label="Customer"
+          value={sale.customer}
+        />
 
-          <DetailCard
-            icon={<Users size={20} className="text-violet-600" />}
-            label="Customer"
-            value={sale.customer}
-          />
+        <DetailRow
+          icon={Hash}
+          label="Quantity"
+          value={quantity}
+        />
 
-          <DetailCard
-            icon={<Hash size={20} className="text-emerald-600" />}
-            label="Quantity"
-            value={sale.quantity}
-          />
-
-          <DetailCard
-            icon={<IndianRupee size={20} className="text-amber-600" />}
-            label="Unit Price"
-            value={`₹ ${Number(
-              sale.unitPrice || 0
-            ).toLocaleString("en-IN", {
+        <DetailRow
+          icon={IndianRupee}
+          label="Unit Price"
+          value={`₹ ${unitPrice.toLocaleString(
+            "en-IN",
+            {
               minimumFractionDigits: 2
-            })}`}
-          />
+            }
+          )}`}
+        />
 
-          <DetailCard
-            icon={<IndianRupee size={20} className="text-green-600" />}
-            label="Total Amount"
-            value={`₹ ${total.toLocaleString("en-IN", {
+        <DetailRow
+          icon={IndianRupee}
+          label="Total Amount"
+          value={`₹ ${total.toLocaleString(
+            "en-IN",
+            {
               minimumFractionDigits: 2
-            })}`}
-            color="text-emerald-700"
-          />
+            }
+          )}`}
+        />
 
-          <DetailCard
-            icon={<CalendarDays size={20} className="text-blue-600" />}
-            label="Sale Date"
-            value={sale.saleDate}
-          />
+        <DetailRow
+          icon={CalendarDays}
+          label="Sale Date"
+          value={sale.saleDate}
+        />
 
-          <DetailCard
-            icon={<FileText size={20} className="text-fuchsia-600" />}
-            label="Invoice Number"
-            value={sale.invoiceNumber}
-          />
+        <DetailRow
+          icon={FileText}
+          label="Invoice Number"
+          value={sale.invoiceNumber}
+        />
 
-          <DetailCard
-            icon={<FileText size={20} className="text-rose-600" />}
-            label="Remarks"
-            value={sale.remarks}
-          />
-
-        </div>
+        <DetailRow
+          icon={MessageSquare}
+          label="Remarks"
+          value={sale.remarks}
+        />
 
       </div>
 

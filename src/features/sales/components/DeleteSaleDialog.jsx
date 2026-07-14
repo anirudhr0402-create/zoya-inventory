@@ -40,14 +40,14 @@ export default function DeleteSaleDialog({
 
           <p className="mt-3 max-w-lg text-center leading-7 text-slate-500">
 
-            This sale record will be permanently deleted.
+            This sales entry will be permanently removed.
 
             <br />
 
             Product
 
             <span className="mx-1 font-semibold text-slate-700">
-              "{sale.productName}"
+              "{sale.productName || "-"}"
             </span>
 
             worth
@@ -62,7 +62,7 @@ export default function DeleteSaleDialog({
               )}
             </span>
 
-            will be removed from sales history.
+            will also be removed from the sales history.
 
           </p>
 
@@ -85,12 +85,12 @@ export default function DeleteSaleDialog({
 
               <p className="mt-2 text-sm leading-6 text-red-600">
 
-                Deleting this sale may affect
-                inventory quantity,
-                profit calculations,
-                sales reports,
-                customer history
-                and dashboard analytics.
+                This action cannot be undone.
+
+                It may affect reports,
+                dashboard statistics,
+                revenue calculations,
+                and profit analysis.
 
               </p>
 

@@ -1,19 +1,25 @@
 import Modal from "../../../components/ui/Modal";
 import SaleForm from "./SaleForm";
 
-export default function SaleModal(props) {
-  if (!props.open) return null;
+export default function SaleModal({
+  open,
+  initialValues,
+  onSubmit,
+  onClose
+}) {
+  if (!open) return null;
 
   return (
     <Modal
-      open={props.open}
-      title={props.title}
-      onClose={props.onClose}
+      open={open}
+      title=""
+      size="4xl"
+      onClose={onClose}
     >
       <SaleForm
-        initialValues={props.initialValues}
-        onSubmit={props.onSubmit}
-        onCancel={props.onClose}
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+        onCancel={onClose}
       />
     </Modal>
   );

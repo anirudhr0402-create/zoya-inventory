@@ -15,24 +15,35 @@ import { db } from "../../../services/firebase/firebaseConfig";
 const salesRef = collection(db, "sales");
 
 export async function getSales() {
-  const q = query(
-    salesRef,
-    orderBy("createdAt", "desc")
+  const snapshot = await getDocs(
+    query(
+      salesRef,
+      orderBy("createdAt", "desc")
+    )
   );
 
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map(docItem => ({
-    id: docItem.id,
-    ...docItem.data()
+  return snapshot.docs.map(document => ({
+    id: document.id,
+    ...document.data()
   }));
 }
 
 export async function createSale(sale) {
   const payload = {
-    ...sale,
+    productId: sale.productId,
+    productName: sale.productName,
+    productCode: sale.productCode || "",
+    category: sale.category || "",
+
+    customer: sale.customer,
+
     quantity: Number(sale.quantity),
     unitPrice: Number(sale.unitPrice),
+
+    saleDate: sale.saleDate,
+    invoiceNumber: sale.invoiceNumber,
+    remarks: sale.remarks || "",
+
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
@@ -52,18 +63,26 @@ export async function updateSale(
   id,
   sale
 ) {
-  const reference = doc(
-    db,
-    "sales",
-    id
-  );
+  await updateDoc(
+    doc(db, "sales", id),
+    {
+      productId: sale.productId,
+      productName: sale.productName,
+      productCode: sale.productCode || "",
+      category: sale.category || "",
 
-  await updateDoc(reference, {
-    ...sale,
-    quantity: Number(sale.quantity),
-    unitPrice: Number(sale.unitPrice),
-    updatedAt: serverTimestamp()
-  });
+      customer: sale.customer,
+
+      quantity: Number(sale.quantity),
+      unitPrice: Number(sale.unitPrice),
+
+      saleDate: sale.saleDate,
+      invoiceNumber: sale.invoiceNumber,
+      remarks: sale.remarks || "",
+
+      updatedAt: serverTimestamp()
+    }
+  );
 }
 
 export async function deleteSale(id) {

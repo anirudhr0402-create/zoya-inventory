@@ -1,126 +1,188 @@
-import {
-  AlertTriangle,
-  Trash2,
-  X
-} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import Modal from "../../../components/ui/Modal";
+import PageHeader from "../../../components/ui/PageHeader";
 
-export default function DeletePurchaseDialog({
-  open,
-  purchase,
-  onCancel,
-  onConfirm
-}) {
-  if (!open || !purchase) return null;
+import useSales from "../hooks/useSales";
+import useSaleSearch from "../hooks/useSaleSearch";
+import useSaleSort from "../hooks/useSaleSort";
 
-  const total =
-    Number(purchase.quantity || 0) *
-    Number(purchase.unitPrice || 0);
+import usePagination from "../../products/hooks/usePagination";
+
+import SalesStats from "../components/SalesStats";
+import SalesToolbar from "../components/SalesToolbar";
+import SalesTable from "../components/SalesTable";
+import SaleModal from "../components/SaleModal";
+import DeleteSaleDialog from "../components/DeleteSaleDialog";
+import SaleDetailsDrawer from "../components/SaleDetailsDrawer";
+import Pagination from "../../products/components/Pagination";
+
+export default function SalesPage() {
+  const {
+    data = [],
+    isLoading,
+    createSale,
+    updateSale,
+    deleteSale
+  } = useSales();
+
+  const {
+    search,
+    setSearch,
+    filteredSales
+  } = useSaleSearch(data);
+
+  const {
+    sortedSales
+  } = useSaleSort(filteredSales);
+
+  const {
+    page,
+    pageSize,
+    totalPages,
+    paginatedData,
+    nextPage,
+    previousPage,
+    setPage,
+    setPageSize
+  } = usePagination(
+    sortedSales,
+    10
+  );
+
+  const [showModal, setShowModal] =
+    useState(false);
+
+  const [editingSale, setEditingSale] =
+    useState(null);
+
+  const [showDelete, setShowDelete] =
+    useState(false);
+
+  const [selectedSale, setSelectedSale] =
+    useState(null);
+
+  const [showDetails, setShowDetails] =
+    useState(false);
+
+  async function handleSubmit(
+    values
+  ) {
+    if (editingSale) {
+      await updateSale(
+        editingSale.id,
+        values
+      );
+
+      toast.success(
+        "Sale updated successfully."
+      );
+    } else {
+      await createSale(values);
+
+      toast.success(
+        "Sale created successfully."
+      );
+    }
+
+    setEditingSale(null);
+    setShowModal(false);
+  }
+
+  async function handleDelete() {
+    await deleteSale(
+      selectedSale.id
+    );
+
+    toast.success(
+      "Sale deleted successfully."
+    );
+
+    setShowDelete(false);
+    setSelectedSale(null);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="p-10">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <Modal
-      open={open}
-      title=""
-      onClose={onCancel}
-    >
-      <div className="space-y-8">
+    <>
+      <PageHeader
+        title="Sales"
+        subtitle="Manage customer sales"
+      />
 
-        <div className="flex flex-col items-center">
+      <SalesStats
+        sales={data}
+      />
 
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-xl">
+      <SalesToolbar
+        search={search}
+        onSearch={setSearch}
+        onAdd={() => {
+          setEditingSale(null);
+          setShowModal(true);
+        }}
+      />
 
-            <AlertTriangle size={42} />
+      <SalesTable
+        sales={paginatedData}
+        onView={sale => {
+          setSelectedSale(sale);
+          setShowDetails(true);
+        }}
+        onEdit={sale => {
+          setEditingSale(sale);
+          setShowModal(true);
+        }}
+        onDelete={sale => {
+          setSelectedSale(sale);
+          setShowDelete(true);
+        }}
+      />
 
-          </div>
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        nextPage={nextPage}
+        previousPage={previousPage}
+        setPage={setPage}
+        setPageSize={setPageSize}
+      />
 
-          <h2 className="mt-6 text-3xl font-bold text-slate-800">
-            Delete Purchase?
-          </h2>
+      <SaleModal
+        open={showModal}
+        initialValues={editingSale}
+        onClose={() => {
+          setEditingSale(null);
+          setShowModal(false);
+        }}
+        onSubmit={handleSubmit}
+      />
 
-          <p className="mt-3 max-w-lg text-center leading-7 text-slate-500">
+      <DeleteSaleDialog
+        open={showDelete}
+        sale={selectedSale}
+        onCancel={() => {
+          setShowDelete(false);
+          setSelectedSale(null);
+        }}
+        onConfirm={handleDelete}
+      />
 
-            This purchase entry will be permanently removed.
-
-            <br />
-
-            Product
-
-            <span className="mx-1 font-semibold text-slate-700">
-              "{purchase.productName}"
-            </span>
-
-            worth
-
-            <span className="mx-1 font-semibold text-emerald-600">
-              ₹ {total.toLocaleString("en-IN", {
-                minimumFractionDigits: 2
-              })}
-            </span>
-
-            will also be removed from purchase history.
-
-          </p>
-
-        </div>
-
-        <div className="rounded-3xl border border-red-200 bg-red-50 p-6">
-
-          <div className="flex gap-4">
-
-            <AlertTriangle
-              size={24}
-              className="mt-1 text-red-600"
-            />
-
-            <div>
-
-              <h3 className="font-bold text-red-700">
-                Warning
-              </h3>
-
-              <p className="mt-2 text-sm leading-6 text-red-600">
-
-                Deleting this purchase may affect
-
-                inventory quantity,
-
-                average purchase cost,
-
-                stock valuation,
-
-                and purchase reports.
-
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="flex justify-end gap-4">
-
-          <button
-            onClick={onCancel}
-            className="flex items-center gap-2 rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100"
-          >
-            <X size={18} />
-            Cancel
-          </button>
-
-          <button
-            onClick={onConfirm}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 px-8 py-3 font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:shadow-red-300"
-          >
-            <Trash2 size={18} />
-            Delete Purchase
-          </button>
-
-        </div>
-
-      </div>
-
-    </Modal>
+      <SaleDetailsDrawer
+        open={showDetails}
+        sale={selectedSale}
+        onClose={() =>
+          setShowDetails(false)
+        }
+      />
+    </>
   );
 }
